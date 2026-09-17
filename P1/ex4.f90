@@ -9,7 +9,7 @@ PROGRAM EX4
     A_exact = 4.0 * (1.0 + LOG(11.0))
 
     OPEN(UNIT=10, FILE='ex4_results.dat', STATUS='REPLACE', ACTION='WRITE')
-    DO N = 100, nmax, 100
+    DO N = 100, nmax,  100
         A_average = 0.0
         A_deviation = 0.0
         DO J = 1, nruns
