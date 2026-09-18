@@ -1,1 +1,1 @@
-The integer numbers are: 4444, 555
+The sum is:       3.30

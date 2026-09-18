@@ -1,32 +1,35 @@
-import math
 from pathlib import Path
-
 import matplotlib.pyplot as plt
 import numpy as np
 
-DATA_FILE = Path(__file__).with_name("ex2_results.dat")
-PLOT_FILE = Path(__file__).with_name("ex2_plot.png")
+# Rutas de archivos
+data_file = Path(__file__).with_name("ex2_results.dat")
+plot_file = Path(__file__).with_name("ex2_plot.png")
 
-k, pi_aprox = np.loadtxt(DATA_FILE, unpack=True)
-error = np.abs(pi_aprox - math.pi)
+# Carga de datos y cálculo de error
+k, pi_aprox = np.loadtxt(data_file, unpack=True)
+error = np.abs(pi_aprox - np.pi)
 
-fig, (ax_pi, ax_err) = plt.subplots(2, 1, figsize=(8, 7), sharex=True)
+# Configuración del lienzo
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(7, 6), sharex=True)
 
-ax_pi.plot(k, pi_aprox, color="C0", label=r"$\pi_{\mathrm{aprox}}$")
-ax_pi.axhline(math.pi, color="C3", linestyle="--", linewidth=1.2, label=r"$\pi$")
-ax_pi.set_ylabel("Valor de π")
-ax_pi.set_title("Convergencia de la serie de Leibniz")
-ax_pi.legend()
-ax_pi.grid(True, alpha=0.3)
+# Panel 1: Aproximación de Pi
+ax1.plot(k, pi_aprox, color="#1f77b4", lw=1.2, label=r"$\pi_{\mathrm{aprox}}$")
+ax1.axhline(np.pi, color="#d62728", ls="--", lw=1.2, label=r"$\pi$ exacto")
+ax1.set_title("Convergencia de la serie de Leibniz", fontsize=11)
+ax1.set_ylabel(r"Valor de $\pi$")
+ax1.grid(True, alpha=0.25)
+ax1.legend(loc="upper right")
 
-ax_err.plot(k, error, color="C1", label="|π_aprox − π|")
-ax_err.set_xlabel("Iteración K")
-ax_err.set_ylabel("Error absoluto")
-ax_err.set_yscale("log")
-ax_err.legend()
-ax_err.grid(True, which="both", alpha=0.3)
+# Panel 2: Error absoluto
+ax2.plot(k, error, color="#ff7f0e", lw=1.2, label=r"$|\pi_{\mathrm{aprox}} - \pi|$")
+ax2.set_yscale("log")
+ax2.set_xlabel("Iteración (K)")
+ax2.set_ylabel("Error")
+ax2.grid(True, which="both", alpha=0.25)
+ax2.legend(loc="upper right")
 
+# Guardar y mostrar
 fig.tight_layout()
-fig.savefig(PLOT_FILE, dpi=150)
+fig.savefig(plot_file, dpi=200)
 plt.show()
-print(f"Gráfico guardado en {PLOT_FILE}")
