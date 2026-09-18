@@ -1,0 +1,86 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{float}
+\usepackage{hyperref}
+
+% --- metadata (agent: auto-fill practice id/title only) ---
+\newcommand{\practiceid}{N}
+\newcommand{\practicetitle}{Practice N}
+\newcommand{\reportauthors}{[Author Name]}
+\newcommand{\reportdate}{[Date]}
+\newcommand{\ph}[1]{\emph{[#1]}}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  urlcolor=blue,
+  citecolor=blue,
+  pdftitle={\practicetitle},
+  pdfauthor={\reportauthors}
+}
+
+\lstdefinestyle{fortranstyle}{
+  language={[free]Fortran},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{teal}\itshape,
+  stringstyle=\color{purple},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=8pt,
+  frame=single,
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=4,
+  captionpos=b
+}
+\lstdefinestyle{datastyle}{
+  language={},
+  basicstyle=\ttfamily\footnotesize,
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=8pt,
+  frame=single,
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=4
+}
+\lstset{style=fortranstyle}
+
+\begin{document}
+
+\begin{titlepage}
+\centering
+\vspace*{1.5cm}
+\IfFileExists{material/images/upc-logo.png}{%
+  \includegraphics[width=2.2cm]{material/images/upc-logo.png}\\[1.2cm]
+}{\vspace{3.4cm}}
+
+{\large\bfseries UNIVERSITAT POLITÈCNICA DE CATALUNYA}\\[0.45cm]
+{\small Escola Tècnica Superior d'Enginyeria de Telecomunicacions de Barcelona (ETSETB)}
+
+\vspace{3.2cm}
+
+{\LARGE\bfseries \practicetitle}\\[1.1cm]
+{\large Grau en Enginyeria Física}
+
+\vfill
+\begin{flushright}
+\textbf{Authors:} \reportauthors\\[0.35cm]
+\textbf{Subject:} SIMCOM\\[0.35cm]
+\textbf{Date:} \reportdate
+\end{flushright}
+\end{titlepage}
+
+% --- BEGIN EXERCISES ---
+% Agent: replace this region with one section per exercise (see SKILL.md).
+% --- END EXERCISES ---
+
+\end{document}
