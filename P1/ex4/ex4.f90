@@ -5,7 +5,7 @@ PROGRAM EX4
     REAL, DIMENSION(nmax) :: x, y
     REAL :: A, A_average, A_exact, A_deviation, A_deviation_average
     INTEGER :: N, J
-    INCLUDE '../chdir_to_code.inc'
+    INCLUDE '../../chdir_to_code.inc'
 
     A_exact = 4.0 * (1.0 + LOG(11.0))
 
