@@ -5,7 +5,8 @@ PROGRAM EX2
     INTEGER :: K = 0
     INTEGER :: I
     REAL, DIMENSION(294337,2) :: results
-    
+    INCLUDE '../chdir_to_code.inc'
+
     DO WHILE (abs(error) > 0.001)
         pi_aprox = pi_aprox + (-1)**K * 4.0 / (2.0*K + 1)
         error = pi_aprox - pi

@@ -5,6 +5,7 @@ PROGRAM EX3
     REAL, DIMENSION(npts) :: C, t
     REAL, DIMENSION(0:wmax) :: result
     INTEGER :: i, w
+    INCLUDE '../chdir_to_code.inc'
 
     OPEN(UNIT=10, FILE='ex3_data.dat', STATUS='OLD', ACTION='READ')
     DO i = 1, npts

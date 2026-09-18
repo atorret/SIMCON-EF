@@ -1,1 +1,1 @@
-The integer numbers are: 1, 23423424
+The integer numbers are: 4444, 555

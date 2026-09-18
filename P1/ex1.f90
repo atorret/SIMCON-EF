@@ -1,6 +1,7 @@
 PROGRAM EX1
     IMPLICIT NONE
     INTEGER :: A, B
+    INCLUDE '../chdir_to_code.inc'
 
     PRINT *, 'Enter 2 numbers:'
     READ(*, *) A, B
