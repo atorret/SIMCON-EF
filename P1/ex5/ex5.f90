@@ -62,7 +62,7 @@ CONTAINS
 
     SUBROutine EULER_PREDICTOR(m,k,x,v,t,t_max,dt,x_0,v_0,t_0)
         IMPLICIT NONE
-        REAL, INTENT(IN) :: m,k,t_max,dt,x_0,v_0,t_0
+        REAL, INTENT(IN) :: m,k,t_max,dt,x_0,v_0,t_0,x_p,a_p
         REAL, DIMENSION(:), INTENT(INOUT) :: x,v,t
         REAL :: a
         INTEGER :: i
@@ -71,12 +71,16 @@ CONTAINS
         v(1)=v_0
         t(1)=t_0
 
-        DO i = 2, t_max
-            a=-(k/m)*x(i)
-            v(i)=v(i-1)+a*dt
+        DO i = 2, INT(t_max/dt)+1
+
+            x_p=x(i-1)+v(i-1)*dt+0.5*a*dt**2
+            a_p=-(k/m)*x_p
+            a=0.5*(a_p+a)
             x(i)=x(i-1)+v(i-1)*dt+0.5*a*dt**2
+            v(i)=v(i-1)+a*dt
             t(i)=t(i-1)+dt
         END DO
+
         RETURN
     END SUBROUTINE EULER_PREDICTOR
 
