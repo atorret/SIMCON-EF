@@ -66,34 +66,44 @@ CONTAINS
         t(1)=t_0
 
         DO i = 2, INT(t_max/dt)+1
-            a=-(k/m)*x(i)
+            a=-(k/m)*x(i-1)
             v(i)=v(i-1)+a*dt
             x(i)=x(i-1)+v(i-1)*dt+0.5*a*dt**2
             t(i)=t(i-1)+dt
         END DO
     END SUBROUTINE EULER
 
-    SUBROUTINE VERLET(m,k,t_max,dt,x_0,v_0,t_0,x,v,t)
+    SUBROUTINE VERLET(m, k, t_max, dt, x_0, v_0, t_0, x, v, t)
         IMPLICIT NONE
-        REAL, INTENT(IN) :: m,k,t_max,dt,x_0,v_0,t_0
-        REAL, DIMENSION(:), INTENT(OUT) :: x,v,t
+        REAL, INTENT(IN) :: m, k, t_max, dt, x_0, v_0, t_0
+        REAL, DIMENSION(:), INTENT(OUT) :: x, v, t
         REAL :: a
-        INTEGER :: i
-
-        x(1)=x_0
-        v(1)=v_0
-        t(1)=t_0
-
-        DO i = 2, INT(t_max/dt)+1
-            a=-(k/m)*x(i)
-            v(i)=v(i-1)+a*dt
-            x(i)=x(i-1)+v(i-1)*dt+0.5*a*dt**2
-            t(i)=t(i-1)+dt
+        INTEGER :: i, n
+    
+        n = NINT((t_max - t_0) / dt) + 1
+    
+        t(1) = t_0
+        x(1) = x_0
+        v(1) = v_0
+        a    = -(k / m) * x(1)
+    
+        t(2) = t_0 + dt
+        x(2) = x(1) + v(1) * dt + 0.5 * a * (dt**2)
+        v(2) = v(1) + a * dt
+    
+        DO i = 3, n
+            a    = -(k / m) * x(i-1)
+            x(i) = 2.0 * x(i-1) - x(i-2) + a * (dt**2)
+            t(i) = t(i-1) + dt
+            v(i-1) = (x(i) - x(i-2)) / (2.0 * dt)
         END DO
+    
+        v(n) = (x(n) - x(n - 1)) / dt
+    
         RETURN
     END SUBROUTINE VERLET
 
-    SUBROutine EULER_PREDICTOR(m,k,t_max,dt,x_0,v_0,t_0,x,v,t)
+    SUBROUTINE EULER_PREDICTOR(m,k,t_max,dt,x_0,v_0,t_0,x,v,t)
         IMPLICIT NONE
         REAL, INTENT(IN) :: m,k,t_max,dt,x_0,v_0,t_0
         REAL, DIMENSION(:), INTENT(OUT) :: x,v,t
@@ -104,7 +114,7 @@ CONTAINS
         v(1)=v_0
         t(1)=t_0
 
-        DO i = 2, INT(t_max/dt)+1
+        DO i = 2, NINT(t_max/dt)+1
             a=-(k/m)*x(i-1)
             x_p=x(i-1)+v(i-1)*dt+0.5*a*dt**2
             a_p=-(k/m)*x_p
