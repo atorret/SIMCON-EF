@@ -1,7 +1,7 @@
 PROGRAM EX5
     IMPLICIT NONE
     REAL :: m=0.200,k=2.0
-    REAL :: t_max=10.0, dt, x_0=0.05, v_0=0.0, t_0=0.0
+    REAL :: t_max=6.0, dt, x_0=0.05, v_0=0.0, t_0=0.0
     REAL, ALLOCATABLE :: x_euler_001(:),v_euler_001(:), t_euler_001(:)
     REAL, ALLOCATABLE :: x_euler_01(:),v_euler_01(:), t_euler_01(:)
     REAL, ALLOCATABLE :: x_euler_02(:),v_euler_02(:), t_euler_02(:)
