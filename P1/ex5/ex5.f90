@@ -8,15 +8,50 @@ PROGRAM EX5
 
     REAL, ALLOCATABLE :: x_euler_predictor(:),v_euler_predictor(:), t_euler_predictor(:)
     REAL, ALLOCATABLE :: x_verlet(:),v_verlet(:), t_verlet(:)
+    INTEGER :: i
 
     dt=0.001
     CALL EULER(m,k,t_max,dt,x_0,v_0,t_0,x_euler_001,v_euler_001,t_euler_001)
+    OPEN(10,file='euler_001.dat')
+    WRITE(10,*) 't,x,v'
+    DO i = 1, INT(t_max/dt)+1
+        WRITE(10,*) t_euler_001(i),x_euler_001(i),v_euler_001(i)
+    END DO
+    CLOSE(10)
+
     dt=0.01
     CALL EULER(m,k,t_max,dt,x_0,v_0,t_0,x_euler_01,v_euler_01,t_euler_01)
+    OPEN(11,file='euler_01.dat')
+    WRITE(11,*) 't,x,v'
+    DO i = 1, INT(t_max/dt)+1
+        WRITE(11,*) t_euler_01(i),x_euler_01(i),v_euler_01(i)
+    END DO
+    CLOSE(11)
+
     dt=0.02
     CALL EULER(m,k,t_max,dt,x_0,v_0,t_0,x_euler_02,v_euler_02,t_euler_02)
+    OPEN(12,file='euler_02.dat')
+    WRITE(12,*) 't,x,v'
+    DO i = 1, INT(t_max/dt)+1
+        WRITE(12,*) t_euler_02(i),x_euler_02(i),v_euler_02(i)
+    END DO
+    CLOSE(12)
+
     CALL EULER_PREDICTOR(m,k,t_max,dt,x_0,v_0,t_0,x_euler_predictor,v_euler_predictor,t_euler_predictor)
+    OPEN(13,file='euler_predictor.dat')
+    WRITE(13,*) 't,x,v'
+    DO i = 1, INT(t_max/dt)+1
+        WRITE(13,*) t_euler_predictor(i),x_euler_predictor(i),v_euler_predictor(i)
+    END DO
+    CLOSE(13)
+
     CALL VERLET(m,k,t_max,dt,x_0,v_0,t_0,x_verlet,v_verlet,t_verlet)
+    OPEN(14,file='verlet.dat')
+    WRITE(14,*) 't,x,v'
+    DO i = 1, INT(t_max/dt)+1
+        WRITE(14,*) t_verlet(i),x_verlet(i),v_verlet(i)
+    END DO
+    CLOSE(14)
 
 CONTAINS
     SUBROUTINE EULER(m,k,t_max,dt,x_0,v_0,t_0,x,v,t)
