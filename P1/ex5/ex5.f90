@@ -10,19 +10,19 @@ PROGRAM EX5
     REAL, ALLOCATABLE :: x_verlet(:),v_verlet(:), t_verlet(:)
 
     dt=0.001
-    CALL EULER(m,k,x_euler_001,v_euler_001,t_euler_001,t_max,dt,x_0,v_0,t_0)
+    CALL EULER(m,k,t_max,dt,x_0,v_0,t_0,x_euler_001,v_euler_001,t_euler_001)
     dt=0.01
-    CALL EULER(m,k,x_euler_01,v_euler_01,t_euler_01,t_max,dt,x_0,v_0,t_0)
+    CALL EULER(m,k,t_max,dt,x_0,v_0,t_0,x_euler_01,v_euler_01,t_euler_01)
     dt=0.02
-    CALL EULER(m,k,x_euler_02,v_euler_02,t_euler_02,t_max,dt,x_0,v_0,t_0)
-    CALL EULER_PREDICTOR(m,k,x_euler_predictor,v_euler_predictor,t_euler_predictor,t_max,dt,x_0,v_0,t_0)
-    CALL VERLET(m,k,x_verlet,v_verlet,t_verlet,t_max,dt,x_0,v_0,t_0)
+    CALL EULER(m,k,t_max,dt,x_0,v_0,t_0,x_euler_02,v_euler_02,t_euler_02)
+    CALL EULER_PREDICTOR(m,k,t_max,dt,x_0,v_0,t_0,x_euler_predictor,v_euler_predictor,t_euler_predictor)
+    CALL VERLET(m,k,t_max,dt,x_0,v_0,t_0,x_verlet,v_verlet,t_verlet)
 
 CONTAINS
-    SUBROUTINE EULER(m,k,x,v,t,t_max,dt,x_0,v_0,t_0)
+    SUBROUTINE EULER(m,k,t_max,dt,x_0,v_0,t_0,x,v,t)
         IMPLICIT NONE
         REAL, INTENT(IN) :: m,k,t_max,dt,x_0,v_0,t_0
-        REAL, DIMENSION(:), INTENT(INOUT) :: x,v,t
+        REAL, DIMENSION(:), INTENT(OUT) :: x,v,t
         REAL :: a
         INTEGER :: i
 
@@ -30,20 +30,18 @@ CONTAINS
         v(1)=v_0
         t(1)=t_0
 
-        DO i = 2, t_max
+        DO i = 2, INT(t_max/dt)+1
             a=-(k/m)*x(i)
             v(i)=v(i-1)+a*dt
             x(i)=x(i-1)+v(i-1)*dt+0.5*a*dt**2
             t(i)=t(i-1)+dt
         END DO
-
-        RETURN
     END SUBROUTINE EULER
 
-    SUBROUTINE VERLET(m,k,x,v,t,t_max,dt,x_0,v_0,t_0)
+    SUBROUTINE VERLET(m,k,t_max,dt,x_0,v_0,t_0,x,v,t)
         IMPLICIT NONE
         REAL, INTENT(IN) :: m,k,t_max,dt,x_0,v_0,t_0
-        REAL, DIMENSION(:), INTENT(INOUT) :: x,v,t
+        REAL, DIMENSION(:), INTENT(OUT) :: x,v,t
         REAL :: a
         INTEGER :: i
 
@@ -51,7 +49,7 @@ CONTAINS
         v(1)=v_0
         t(1)=t_0
 
-        DO i = 2, t_max
+        DO i = 2, INT(t_max/dt)+1
             a=-(k/m)*x(i)
             v(i)=v(i-1)+a*dt
             x(i)=x(i-1)+v(i-1)*dt+0.5*a*dt**2
@@ -60,10 +58,10 @@ CONTAINS
         RETURN
     END SUBROUTINE VERLET
 
-    SUBROutine EULER_PREDICTOR(m,k,x,v,t,t_max,dt,x_0,v_0,t_0)
+    SUBROutine EULER_PREDICTOR(m,k,t_max,dt,x_0,v_0,t_0,x,v,t)
         IMPLICIT NONE
         REAL, INTENT(IN) :: m,k,t_max,dt,x_0,v_0,t_0
-        REAL, DIMENSION(:), INTENT(INOUT) :: x,v,t
+        REAL, DIMENSION(:), INTENT(OUT) :: x,v,t
         REAL :: a
         INTEGER :: i
 
@@ -71,7 +69,7 @@ CONTAINS
         v(1)=v_0
         t(1)=t_0
 
-        DO i = 2, t_max
+        DO i = 2, INT(t_max/dt)+1
             a=-(k/m)*x(i)
             v(i)=v(i-1)+a*dt
             x(i)=x(i-1)+v(i-1)*dt+0.5*a*dt**2
