@@ -77,8 +77,4 @@ fig2.savefig("ex5_error_plot.png", dpi=200)
 # ==========================================
 plt.show()
 
-<<<<<<< HEAD
 print("Plot generated and saved as ex5_plot.png")
-=======
-print("Gráficos guardados como ex5_pos_plot.png y ex5_error_plot.png")
->>>>>>> 292a06963409cbae393f448cf7a2a9ec18e331a6
