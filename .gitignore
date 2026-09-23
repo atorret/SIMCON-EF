@@ -1,3 +1,13 @@
 *.o
 .vscode/launch.json
 .vscode/settings.json
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+
+# Bulk Leibniz-series output (~27 MB, regenerate with P1/ex2/ex2.exe)
+P1/ex2/ex2_results.dat

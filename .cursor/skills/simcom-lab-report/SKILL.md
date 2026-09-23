@@ -2,7 +2,7 @@
 name: simcom-lab-report
 description: >-
   Scaffolds an English LaTeX lab report for SIMCOM practice sessions (P1, P2, ...).
-  Copies Fortran sources, figures, and short outputs into P*/report/material/,
+  Points listings and figures at the original exercise files (no copies),
   emits a cover page and per-exercise Objective/Code/Results/Discussion sections
   with visible prose placeholders, and lints asset paths. Use when generating,
   writing, or scaffolding a SIMCOM practice report, lab report, P*_report.tex,
@@ -11,7 +11,7 @@ description: >-
 
 # SIMCOM Lab Report
 
-Scaffold an Overleaf-uploadable English report for a practice directory (`P1`, `P2`, ...). Wire up structure, listings, and figures mechanically. Leave every word of judgement as a visible placeholder.
+Scaffold an English report for a practice directory (`P1`, `P2`, ...). Wire up structure, listings, and figures mechanically. Leave every word of judgement as a visible placeholder.
 
 This machine has no LaTeX compiler. Do not attempt to build a PDF. `gfortran` and `python` are available. Every Fortran program `INCLUDE`s `chdir_to_code.inc`, which `CHDIR`s to the executable's directory, so binaries must be built and run **inside** the exercise directory.
 
@@ -19,10 +19,11 @@ This machine has no LaTeX compiler. Do not attempt to build a PDF. `gfortran` an
 
 ```
 P<N>/report/P<N>_report.tex
-P<N>/report/material/code/     # Fortran sources only
-P<N>/report/material/images/   # figures (and optional upc-logo.png)
-P<N>/report/material/data/     # short console/text output
+P<N>/report/material/images/   # optional extras only (e.g. upc-logo.png)
+P<N>/report/material/data/     # optional extras only (user-supplied)
 ```
+
+Do **not** create `material/code/`. Do **not** copy exercise Fortran, plot PNGs, or generated outputs into `material/`. The `.tex` includes those files from the exercise directories (`../ex<N>/...`). `material/images/` and `material/data/` exist only if the user later adds extra assets that are not already produced in an `ex*` folder.
 
 Copy the skeleton from [assets/report-template.tex](assets/report-template.tex). After writing, run [scripts/lint_report.py](scripts/lint_report.py).
 
@@ -35,11 +36,10 @@ Copy this checklist and track it:
 - [ ] 2. English pass on plot scripts
 - [ ] 3. Rebuild stale Fortran outputs
 - [ ] 4. Regenerate figures
-- [ ] 5. Copy assets into material/
-- [ ] 6. Write (or refuse to overwrite) the report
-- [ ] 7. Lint
-- [ ] 8. Git hygiene
-- [ ] 9. Summarize
+- [ ] 5. Write (or refuse to overwrite) the report
+- [ ] 6. Lint
+- [ ] 7. Git hygiene
+- [ ] 8. Summarize
 ```
 
 ### 1. Discover exercises
@@ -83,6 +83,8 @@ MPLBACKEND=Agg python plot_ex<N>.py
 
 On Windows PowerShell: `$env:MPLBACKEND='Agg'; python plot_ex<N>.py`.
 
+The PNG must be written **only** in the exercise directory (next to `plot_ex<N>.py`). Do not copy it into `material/images/`.
+
 If a plottable numeric data file exists and there is no `plot_ex<N>.py`, **create one in the exercise directory** following existing conventions, in English, then run it:
 
 ```python
@@ -99,23 +101,9 @@ fig.savefig(PLOT_FILE, dpi=150)
 plt.show()
 ```
 
-### 5. Copy assets
+### 5. Write the report
 
-Refresh derived copies freely:
-
-| Source | Destination |
-|---|---|
-| `ex<N>.f90` | `material/code/` |
-| `*_plot.png` | `material/images/` |
-| Short console/text output (a few lines, not a numeric matrix) | `material/data/` |
-
-Do not copy plot scripts into `material/code/` (Code sections are Fortran only).
-
-Leave orphaned files in `material/` whose source vanished; warn in the summary.
-
-### 6. Write the report
-
-If `P<N>/report/P<N>_report.tex` **already exists**, do not touch it. Report what looks stale (source newer than `material/` copy, missing exercises, missing figures) and **ask**.
+If `P<N>/report/P<N>_report.tex` **already exists**, do not touch it unless the user asked to change the report or its asset layout. Report what looks stale (missing exercises, missing figures) and **ask**.
 
 Otherwise:
 
@@ -124,12 +112,14 @@ Otherwise:
 3. Replace the `BEGIN EXERCISES` / `END EXERCISES` region with one section per exercise (pattern below).
 4. No table of contents. No introduction. Cover, then Exercise 1.
 
-**Code:** `\lstinputlisting` of `material/code/ex<N>.f90` only.
+Do not copy sources, plots, or generated outputs into `material/`. Point every listing and figure at the original file.
+
+**Code:** `\lstinputlisting` of `../ex<N>/ex<N>.f90` only.
 
 **Results:**
 
-- Figure: `\includegraphics{material/images/ex<N>_plot.png}` with caption `Output of exercise N`.
-- Short text: `\lstinputlisting` of `material/data/...` (empty language, not Fortran).
+- Figure: `\includegraphics{../ex<N>/ex<N>_plot.png}` with caption `Output of exercise N`.
+- Short text: `\lstinputlisting` of `../ex<N>/...` (empty language, not Fortran).
 - Both, if both exist (figure first).
 
 **Objective / Discussion:** visible placeholders via `\ph{...} % TODO`. Do not draft prose.
@@ -141,11 +131,11 @@ Exercise section pattern:
 \subsection{Objective}
 \ph{State the problem and the intended goal} % TODO
 \subsection{Code}
-\lstinputlisting[language={[free]Fortran},label={lst:ex1}]{material/code/ex1.f90}
+\lstinputlisting[style=fortranstyle,label={lst:ex1}]{../ex1/ex1.f90}
 \subsection{Results}
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.9\linewidth]{material/images/ex1_plot.png}
+  \includegraphics[width=0.9\linewidth]{../ex1/ex1_plot.png}
   \caption{Output of exercise 1}
   \label{fig:ex1}
 \end{figure}
@@ -156,10 +146,10 @@ Exercise section pattern:
 For text-only results, replace the figure with:
 
 ```latex
-\lstinputlisting[language={},label={lst:ex1-out}]{material/data/ex1_results.txt}
+\lstinputlisting[language={},label={lst:ex1-out}]{../ex1/ex1_results.txt}
 ```
 
-### 7. Lint
+### 6. Lint
 
 ```bash
 python .cursor/skills/simcom-lab-report/scripts/lint_report.py P<N>/report/P<N>_report.tex
@@ -167,7 +157,7 @@ python .cursor/skills/simcom-lab-report/scripts/lint_report.py P<N>/report/P<N>_
 
 Fix missing-asset errors before finishing. Remaining `\ph` / `% TODO` markers are expected on a fresh scaffold.
 
-### 8. Git hygiene
+### 7. Git hygiene
 
 Ensure the repo `.gitignore` contains these patterns (add any that are missing). Keep the PDF tracked:
 
@@ -181,9 +171,9 @@ Ensure the repo `.gitignore` contains these patterns (add any that are missing).
 *.fdb_latexmk
 ```
 
-### 9. Summarize
+### 8. Summarize
 
-Report: overwritten binaries, translated plot scripts, generated plot scripts, skipped stdin programs, orphaned `material/` files, non-English Fortran, remaining placeholders, lint result.
+Report: overwritten binaries, translated plot scripts, generated plot scripts, skipped stdin programs, leftover copies under `material/`, non-English Fortran, remaining placeholders, lint result.
 
 ## Cover rules
 
