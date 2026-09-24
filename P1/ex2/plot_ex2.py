@@ -15,16 +15,16 @@ fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(7, 6), sharex=True)
 
 # Panel 1: Aproximación de Pi
 ax1.plot(k, pi_aprox, color="#1f77b4", lw=1.2, label=r"$\pi_{\mathrm{aprox}}$")
-ax1.axhline(np.pi, color="#d62728", ls="--", lw=1.2, label=r"$\pi$ exacto")
-ax1.set_title("Convergencia de la serie de Leibniz", fontsize=11)
-ax1.set_ylabel(r"Valor de $\pi$")
+ax1.axhline(np.pi, color="#d62728", ls="--", lw=1.2, label=r"Exact $\pi$")
+ax1.set_title("Leibniz series convergence", fontsize=11)
+ax1.set_ylabel(r"$\pi_{\mathrm{approx}}$")
 ax1.grid(True, alpha=0.25)
 ax1.legend(loc="upper right")
 
 # Panel 2: Error absoluto
 ax2.plot(k, error, color="#ff7f0e", lw=1.2, label=r"$|\pi_{\mathrm{aprox}} - \pi|$")
 ax2.set_yscale("log")
-ax2.set_xlabel("Iteración (K)")
+ax2.set_xlabel("k-th Iteration")
 ax2.set_ylabel("Error")
 ax2.grid(True, which="both", alpha=0.25)
 ax2.legend(loc="upper right")

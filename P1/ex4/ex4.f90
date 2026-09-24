@@ -1,7 +1,7 @@
 PROGRAM EX4
     IMPLICIT NONE
-    INTEGER, PARAMETER :: nmax = 1000
-    INTEGER, PARAMETER :: nruns = 3
+    INTEGER, PARAMETER :: nmax = 10000
+    INTEGER, PARAMETER :: nruns = 10
     REAL, DIMENSION(nmax) :: x, y
     REAL :: A, A_average, A_exact, A_deviation, A_deviation_average
     INTEGER :: N, J
