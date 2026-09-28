@@ -2,19 +2,12 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Carga de datos completa (5 columnas: t, x, v, Ek, Ep)
-t_001, x_001, _, ek_001, ep_001 = np.loadtxt("euler_001.dat", skiprows=1, unpack=True)
-t_01,  x_01,  _, ek_01,  ep_01  = np.loadtxt("euler_01.dat",  skiprows=1, unpack=True)
-t_02,  x_02,  _, ek_02,  ep_02  = np.loadtxt("euler_02.dat",  skiprows=1, unpack=True)
-t_prd, x_prd, _, ek_prd, ep_prd = np.loadtxt("euler_predictor.dat", skiprows=1, unpack=True)
-t_ver, x_ver, _, ek_ver, ep_ver = np.loadtxt("verlet.dat",    skiprows=1, unpack=True)
-
-# Energías totales (E_tot = Ek + Ep)
-etot_001 = ek_001 + ep_001
-etot_01  = ek_01  + ep_01
-etot_02  = ek_02  + ep_02
-etot_prd = ek_prd + ep_prd
-etot_ver = ek_ver + ep_ver
+# Carga de datos completa (6 columnas: t, x, v, Ek, Ep, ET)
+t_001, x_001, _, ek_001, ep_001, etot_001 = np.loadtxt("euler_001.dat", skiprows=1, unpack=True)
+t_01,  x_01,  _, ek_01,  ep_01,  etot_01  = np.loadtxt("euler_01.dat",  skiprows=1, unpack=True)
+t_02,  x_02,  _, ek_02,  ep_02,  etot_02  = np.loadtxt("euler_02.dat",  skiprows=1, unpack=True)
+t_prd, x_prd, _, ek_prd, ep_prd, etot_prd = np.loadtxt("euler_predictor.dat", skiprows=1, unpack=True)
+t_ver, x_ver, _, ek_ver, ep_ver, etot_ver = np.loadtxt("verlet.dat",    skiprows=1, unpack=True)
 
 # Solución analítica y cálculo de errores de posición
 omega = np.sqrt(2.0 / 0.200)
@@ -137,9 +130,6 @@ ax_tot.legend(loc="upper left")
 fig4.tight_layout()
 fig4.savefig("ex5_total_energy_plot.png", dpi=200)
 
-# ==========================================
-# MOSTRAR TODAS LAS FIGURAS
-# ==========================================
 plt.show()
 
 print("Gráficos generados:")
