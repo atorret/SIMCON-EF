@@ -13,6 +13,8 @@ c     1. Defining dimensions
  
       dimension r(3,1000),vinf(3,1000),accel(3,1000)
 
+      INCLUDE '../chdir_to_code.inc'
+
 c     2. Reading data and computing related quantities
 
       open(1,file='leap-lj.data',status='old')
