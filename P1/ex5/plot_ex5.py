@@ -9,9 +9,10 @@ t_02,  x_02,  _, ek_02,  ep_02,  etot_02  = np.loadtxt("euler_02.dat",  skiprows
 t_prd, x_prd, _, ek_prd, ep_prd, etot_prd = np.loadtxt("euler_predictor.dat", skiprows=1, unpack=True)
 t_ver, x_ver, _, ek_ver, ep_ver, etot_ver = np.loadtxt("verlet.dat",    skiprows=1, unpack=True)
 
-# Solución analítica y cálculo de referencias
+# Solución analítica dinámica hasta t_max
+t_max = max(t_001[-1], t_01[-1], t_02[-1], t_prd[-1], t_ver[-1])
 omega = np.sqrt(2.0 / 0.200)
-t_fine = np.linspace(0.0, 4.0, 1000)
+t_fine = np.linspace(0.0, t_max, max(1000, int(t_max * 250)))
 x_exact = 0.05 * np.cos(omega * t_fine)
 e_exact = 0.5 * 2.0 * (0.05**2)  # E0 = 0.0025 J
 
