@@ -13,11 +13,11 @@ c     1. Defining dimensions
  
       dimension r(3,1000),vinf(3,1000),accel(3,1000)
 
-      INCLUDE '../chdir_to_code.inc'
+      INCLUDE '../../chdir_to_code.inc'
 
 c     2. Reading data and computing related quantities
 
-      open(1,file='leap-lj.data',status='old')
+      open(1,file='../data/leap-lj.data',status='old')
       read(1,*) nconf
       read(1,*) natoms
       read(1,*) mass
@@ -30,7 +30,7 @@ c     2. Reading data and computing related quantities
 
 c     3. Reading initial configuration (positions, velocities) in A and A/ps
 
-      open(2,file='leap-conf.data',status='old')
+      open(2,file='../data/leap-conf.data',status='old')
       do is = 1,natoms
          read(2,*) (r(l,is),l=1,3)
          read(2,*) (vinf(l,is),l=1,3)
