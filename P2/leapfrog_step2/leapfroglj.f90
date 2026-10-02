@@ -8,9 +8,10 @@
 !            ../data/leap-lj.data    simulation parameters
 !            ../data/leap-conf.data  initial configuration
 !          A new version is a sibling directory of this one and opens
-!          those same files. Energy, temperature, the radial
-!          distribution function g(r), and the final configuration
-!          are written in this directory.
+!          those same files. Energy, temperature, pressure
+!          (kinetic, virial and tail), the radial distribution
+!          function g(r), and the final configuration are written
+!          in this directory.
 !
 !*****************************************************************************
 program leapfroglj
@@ -48,6 +49,7 @@ program leapfroglj
   ! Opening files to write results
   open(3, file='energy-leap.dat', status='unknown')
   open(4, file='temp-leap.dat', status='unknown')
+  open(8, file='thermo-leap.dat', status='unknown')
 
   ! 4. Change to reduced units
   call reduced(natoms, r, vinf, boxlength, deltat, epsil, sigma, &
@@ -55,33 +57,85 @@ program leapfroglj
 
   ! 5. Start the loop to generate new configurations
   !    delg is the RDF bin width. Bins cover r in [0, L/2].
+  !    Tail corrections assume g(r) = 1 for r > rc (reduced units):
+  !      E_tail = (8*pi/3)*rho*N*[1/(3*rc^9) - 1/rc^3]
+  !      P_tail = (16*pi/3)*rho^2*[2/(3*rc^9) - 1/rc^3]
   pi = 4.d0*datan(1.d0)
   delg = boxlength/(2.d0*dfloat(nhis))
+  rho = dfloat(natoms)/boxlength**3
+  etail = (8.d0*pi/3.d0)*rho*dfloat(natoms)* &
+          (1.d0/(3.d0*rc**9) - 1.d0/rc**3)
+  ptail = (16.d0*pi/3.d0)*rho**2* &
+          (2.d0/(3.d0*rc**9) - 1.d0/rc**3)
   do j = 1, nhis
      g(j) = 0.d0
   end do
+  ekin_sum = 0.d0
+  epot_sum = 0.d0
+  pkin_sum = 0.d0
+  pvir_sum = 0.d0
+
+  write(8,'(a)') '# t ekin epot etail etot pkin pvir ptail ptot'
 
   do i = 1, nconf
-     call forces(natoms, r, boxlength, accel, rc, epot, nhis, g, delg)
+     call forces(natoms, r, boxlength, accel, rc, epot, vir, nhis, g, delg)
      call velpos(natoms, vinf, accel, deltat, r, nf, ecin, temp, &
                  boxlength)
+     ! Conserved NVE energy (no tail). Thermodynamic totals include it.
      etot = ecin + epot
+     etot_corr = etot + etail
+     pkin = 2.d0*ecin/(3.d0*boxlength**3)
+     pvir = vir/(3.d0*boxlength**3)
+     ptot = pkin + pvir + ptail
+     ekin_sum = ekin_sum + ecin
+     epot_sum = epot_sum + epot
+     pkin_sum = pkin_sum + pkin
+     pvir_sum = pvir_sum + pvir
      write(3,*) i*deltat, etot
      write(4,*) i*deltat, temp
+     write(8,*) i*deltat, ecin, epot, etail, etot_corr, pkin, pvir, ptail, ptot
   end do
   close(3)
   close(4)
+  close(8)
+
+  ekin_avg = ekin_sum/dfloat(nconf)
+  epot_avg = epot_sum/dfloat(nconf)
+  etot_avg = ekin_avg + epot_avg + etail
+  pkin_avg = pkin_sum/dfloat(nconf)
+  pvir_avg = pvir_sum/dfloat(nconf)
+  ptot_avg = pkin_avg + pvir_avg + ptail
+
+  open(9, file='averages-leap.dat', status='unknown')
+  write(9,*) 'nconf', nconf
+  write(9,*) 'ekin', ekin_avg
+  write(9,*) 'epot', epot_avg
+  write(9,*) 'etail', etail
+  write(9,*) 'etot', etot_avg
+  write(9,*) 'pkin', pkin_avg
+  write(9,*) 'pvir', pvir_avg
+  write(9,*) 'ptail', ptail
+  write(9,*) 'ptot', ptot_avg
+  close(9)
+  print *, 'Mean values in reduced units'
+  print *, '  Ekin  =', ekin_avg
+  print *, '  Epot  =', epot_avg
+  print *, '  Etail =', etail
+  print *, '  Etot  =', etot_avg
+  print *, '  Pkin  =', pkin_avg
+  print *, '  Pvir  =', pvir_avg
+  print *, '  Ptail =', ptail
+  print *, '  Ptot  =', ptot_avg
 
   ! 6. Radial distribution function in reduced units.
   !    Bin j is the shell [(j-1)*delg, j*delg). Its center is
   !    (j-0.5)*delg and its volume is (4/3)*pi*(r_out^3-r_in^3).
   !    nid (ideal-gas occupancy of that shell) is real: with the
   !    implicit typing, a name starting with n would be integer.
-  rho = dfloat(natoms)/boxlength**3
   open(5, file='g-leap.dat', status='unknown')
-  do j = 1, nhis
-     rr = delg*(dfloat(j) - 0.5d0)
-     vb = (dfloat(j)**3 - dfloat(j-1)**3)*delg**3
+  do j = 0, nhis-1
+     rr = delg*(dfloat(j) + 0.5d0)
+     vb = (dfloat(j+1)**3 - dfloat(j)**3)*delg**3
      nid = (4.d0/3.d0)*pi*vb*rho
      g(j) = g(j)/(dfloat(nconf)*dfloat(natoms)*nid)
      write(5,*) rr, g(j)
@@ -134,7 +188,7 @@ end subroutine reduced
 !*********************************************************
 !*********************************************************
 
-subroutine forces(natoms, r, boxlength, accel, rc, epot, nhis, g, delg)
+subroutine forces(natoms, r, boxlength, accel, rc, epot, vir, nhis, g, delg)
   implicit double precision(a-h,o-z)
   dimension r(3,1000), accel(3,1000)
   dimension g(nhis)
@@ -145,12 +199,14 @@ subroutine forces(natoms, r, boxlength, accel, rc, epot, nhis, g, delg)
      end do
   end do
   epot = 0.d0
+  vir = 0.d0
 
   ! atom-atom interactions
   do is = 1, natoms-1
      do js = is+1, natoms
-        call lj(is, js, r, boxlength, accel, rc, pot, nhis, g, delg)
+        call lj(is, js, r, boxlength, accel, rc, pot, virij, nhis, g, delg)
         epot = epot + pot
+        vir = vir + virij
      end do
   end do
 
@@ -163,7 +219,7 @@ end subroutine forces
 !*********************************************************
 !*********************************************************
 
-subroutine lj(is, js, r, boxlength, accel, rc, pot, nhis, g, delg)
+subroutine lj(is, js, r, boxlength, accel, rc, pot, virij, nhis, g, delg)
   implicit double precision(a-h,o-z)
   dimension r(3,1000), accel(3,1000)
   dimension rij(3)
@@ -171,6 +227,7 @@ subroutine lj(is, js, r, boxlength, accel, rc, pot, nhis, g, delg)
 
   rr2 = 0.d0
   pot = 0.d0
+  virij = 0.d0
 
   do l = 1, 3
      rijl = r(l,js) - r(l,is)
@@ -190,6 +247,7 @@ subroutine lj(is, js, r, boxlength, accel, rc, pot, nhis, g, delg)
         accel(l,is) = accel(l,is) - forcedist*rij(l)
         accel(l,js) = accel(l,js) + forcedist*rij(l)
      end do
+     virij = forcedist*rr2
   end if
 
   ! Histogram of pair distances up to L/2 (minimum image).
