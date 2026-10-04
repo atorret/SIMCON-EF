@@ -2,6 +2,9 @@ PROGRAM EX1
     IMPLICIT NONE
     INTEGER :: A
     REAL    :: B, RESULT
+
+    ! Sets the working directory to the source folder so programs can be run/compiled 
+    ! directly from the root workspace in VS Code without manual navigation.
     INCLUDE '../../chdir_to_code.inc'
 
     PRINT *, 'Enter an integer:'

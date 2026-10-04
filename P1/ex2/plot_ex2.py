@@ -11,7 +11,7 @@ k, pi_aprox = np.loadtxt(data_file, unpack=True)
 error = np.abs(pi_aprox - np.pi)
 
 # Configuración del lienzo
-fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(7, 6), sharex=True)
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(7, 4.5), sharex=True)
 
 # Panel 1: Aproximación de Pi
 ax1.plot(k, pi_aprox, color="#1f77b4", lw=1.2, label=r"$\pi_{\mathrm{approx}}$")

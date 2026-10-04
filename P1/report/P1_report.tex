@@ -140,13 +140,13 @@ Write a full program that adds one integer with one real. Be sure to use correct
 \subsection{Results}
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.9\linewidth]{../ex1/ex1_photo.png}
+  \includegraphics[width=0.75\linewidth]{../ex1/ex1_photo.png}
   \caption{Screenshot of exercise 1}
   \label{fig:ex1}
 \end{figure}
 
 \subsection{Discussion \& Notes}
-As can be observed in the image, the program firstly ask the user for 1 integer and after the user insert it, the program asks for 1 real number. Finally, the program prints the result of the sum of the two numbers in an external file called \texttt{ex1\_results.txt}.
+As can be observed in the image, the program firstly ask the user for 1 integer and after the user inserts it, the program asks for 1 real number. Finally, the program prints the result of the sum of the two numbers in an external file called \texttt{ex1\_results.txt}.
 
 \newpage
 \section{Exercise 2}
@@ -172,7 +172,7 @@ Compute until your result agrees to at least five decimal digits within the corr
 \end{figure}
 
 \subsection{Discussion \& Notes}
-As we use the alternating Leibniz series to approximate $\pi$ until the first five decimal places converge, we require an error tolerance one order of magnitude smaller ($|\varepsilon| < 10^{-6}$) to guarantee this accuracy. Alternatively, we could have truncated both the reference value and our approximation to five decimal digits and checked for zero difference. However, because the partial sums oscillate around the true value, we could have satisfied that condition prematurely simply by chance. For this reason, to ensure consistency and robustness in our results, we enforced an error threshold strictly below $10^{-6}$.
+As we use the alternating Leibniz series to approximate $\pi$ until the first five decimal places converges, we require an error tolerance one order of magnitude smaller ($|\varepsilon| < 10^{-6}$) to guarantee this accuracy. Alternatively, we could have truncated both the reference value and our approximation to five decimal digits and checked for zero difference. However, because the partial sums oscillate around the true value, we could have satisfied that condition prematurely simply by chance. For this reason, to ensure consistency and robustness in our results, we enforced an error threshold strictly below $10^{-6}$.
 \\ 
 Therefore, to obtain $\pi$ with the desired accuracy, we need to compute the series until $K = 10^6$.
 
@@ -266,7 +266,7 @@ Evaluate the area enclosed between the curves $y = x^{-1}$ and $y = -x^{-1}$ wit
   Finally, we averaged the $3$ runs and calculated how far the result was from the true value, $A_{\text{exact}} \approx 13.5916$.
 
   \item \textbf{Code details:} 
-  To avoid dividing by zero when calculating $1/x$, the code checks \texttt{IF (x /= 0.0)} before testing a point; skipping this single line does not change the calculated area.
+  To avoid dividing by zero when calculating $1/x$, the code checks \texttt{IF (x /= 0.0)} before testing a point. As $N$ is very large, skipping this single point does not change the calculated area.
   
   \item \textbf{Sweet spot:}
   As $N$ increases, the estimated area converges toward the analytical value ($13.5916$), with the error decreasing as $1/\sqrt{N}$, as expected for Monte Carlo integration:
