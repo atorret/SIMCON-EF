@@ -104,12 +104,11 @@
 
 \begin{document}
 
+\hypersetup{pageanchor=false}
 \begin{titlepage}
 \centering
 \vspace*{1.5cm}
-\IfFileExists{material/images/upc-logo.png}{%
-  \includegraphics[width=2.2cm]{material/images/upc-logo.png}\\[1.2cm]
-}{\vspace{3.4cm}}
+\includegraphics[width=5cm]{../../upc-logo.png}\\[1.2cm]
 
 {\large\bfseries UNIVERSITAT POLITÈCNICA DE CATALUNYA}\\[0.45cm]
 {\small Escola Tècnica Superior d'Enginyeria de Telecomunicacions de Barcelona (ETSETB)}
@@ -126,36 +125,40 @@
 \textbf{Date:} \reportdate
 \end{flushright}
 \end{titlepage}
+\hypersetup{pageanchor=true}
 
 % --- BEGIN EXERCISES ---
 
 \section{Exercise 1}
 
-\subsection{Objective}
+\subsection{Question}
 Write a full program that adds one integer with one real. Be sure to use correct style (program name, no implicit typing, correct declarations). Add the user to enter the two numbers. Print the result in an external file.
-
-\paragraph{Note:} The code and the result must be printed. Include all details in your report of Practice 1, indicating each part and, eventually, commenting about relevant details (precision used, format, etc.).
 
 \subsection{Code}
 \lstinputlisting[style=fortranstyle,label={lst:ex1}]{../ex1/ex1.f90}
 
 \subsection{Results}
-\lstinputlisting[style=datastyle,language={},label={lst:ex1-out}]{../ex1/ex1_results.txt}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\linewidth]{../ex1/ex1_photo.png}
+  \caption{Screenshot of exercise 1}
+  \label{fig:ex1}
+\end{figure}
 
 \subsection{Discussion \& Notes}
-\ph{Comment on critical or non-trivial components} % TODO
+As can be observed in the image, the program firstly ask the user for 1 integer and after the user insert it, the program asks for 1 real number. Finally, the program prints the result of the sum of the two numbers in an external file called \texttt{ex1\_results.txt}.
 
 \newpage
 \section{Exercise 2}
 
-\subsection{Objective}
+\subsection{Question}
+{\sloppy
 Use the Leibniz formula to compute $\pi$:
 \begin{equation}
   \frac{\pi}{4} = \sum_{k=0}^{\infty} \frac{(-1)^k}{2k+1}
 \end{equation}
-Compute until your result agrees to at least five decimal digits within the correct value ($3.1415926535897932384626433\dots$). This series converges very slowly so this can take a lot of iterations\dots Display a graph showing the evolution with $k$, i.e. $\pi(k)$ as a function of $k$.
-
-\paragraph{Note:} The code and the result must be printed. Include all details in your report of Practice 1, commenting about relevant details (precision used, format, etc.) if necessary.
+Compute until your result agrees to at least five decimal digits within the correct value ($3.1415926535897932384626433\dots$). This series converges very slowly so this can take a lot of iterations\dots Display a graph showing the evolution with $k$, i.e.\ $\pi(k)$ as a function of $k$.
+\par}
 
 \subsection{Code}
 \lstinputlisting[style=fortranstyle,label={lst:ex2}]{../ex2/ex2.f90}
@@ -163,18 +166,20 @@ Compute until your result agrees to at least five decimal digits within the corr
 \subsection{Results}
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.9\linewidth]{../ex2/ex2_plot.png}
+  \includegraphics[width=0.75\linewidth]{../ex2/ex2_plot.png}
   \caption{Output of exercise 2}
   \label{fig:ex2}
 \end{figure}
 
 \subsection{Discussion \& Notes}
-\ph{Comment on critical or non-trivial components} % TODO
+As we use the alternating Leibniz series to approximate $\pi$ until the first five decimal places converge, we require an error tolerance one order of magnitude smaller ($|\varepsilon| < 10^{-6}$) to guarantee this accuracy. Alternatively, we could have truncated both the reference value and our approximation to five decimal digits and checked for zero difference. However, because the partial sums oscillate around the true value, we could have satisfied that condition prematurely simply by chance. For this reason, to ensure consistency and robustness in our results, we enforced an error threshold strictly below $10^{-6}$.
+\\ 
+Therefore, to obtain $\pi$ with the desired accuracy, we need to compute the series until $K = 10^6$.
 
 \newpage
 \section{Exercise 3}
 
-\subsection{Objective}
+\subsection{Question}
 Use subroutines and/or functions to write a code to compute the Fourier integral of a given time-dependent correlation function such as $C(t) = \langle A(0)\cdot A(t) \rangle$. For instance, in molecular water simulations, spectral lineshapes $I(\omega)$ are usually found from:
 \begin{equation}
   I(\omega) \sim \frac{2Nq^2}{\pi\omega^2} S(\omega) \equiv \frac{2Nq^2}{\pi\omega^2} \int_0^{\infty} dt\,\langle\vec{v}_{H_i}(t)\cdot\vec{v}_{H_i}(0)\rangle \cos(\omega t)
@@ -186,8 +191,6 @@ Find:
   S(\omega) = \int_0^{\infty} dt\, C(t)\cdot \cos(\omega t)
   \label{eq:fourier_cosine}
 \end{equation}
-
-\paragraph{Note:} The code and the result (a plot of $S(\omega)$) must be printed. Include all details in your report of Practice 1, commenting about relevant ideas/procedures you used, if necessary. In order to compute the numerical integral, use a quadrature or Simpson method with $\omega \in [0, 500]\text{ ps}^{-1}$ and $\Delta t = 0.0005\text{ ps}$.
 
 \subsection{Code}
 \lstinputlisting[style=fortranstyle,caption={Fortran implementation of composite Simpson's quadrature for the Fourier cosine transform.},label={lst:ex3}]{../ex3/ex3.f90}
@@ -214,7 +217,7 @@ The input signal $C(t)$ and the resulting Fourier cosine transform spectrum $S(\
 \newpage
 \section{Exercise 4}
 
-\subsection{Objective}
+\subsection{Question}
 Compute integrals with the MC method, using random sampling.
 
 \paragraph{Calculation of a surface:}
@@ -222,7 +225,7 @@ Idea: Use of the mean value theorem for integrals. The value of the integral is:
 \begin{equation}
   \int_a^b dx\, f(x) = (b - a)\langle f \rangle, \quad \text{where} \quad \langle f \rangle_N = \frac{1}{N}\sum_{i=1}^N f(x_i)
 \end{equation}
-Evaluate the area enclosed between the curves $y = x^{-1}$ and $y = -x^{-1}$ within the range $x \in [-1, 1]$ and $y \in [-11, 11]$. Note that the exact value is $A_{\text{exact}} = 13.5916$.
+Evaluate the area enclosed between the curves $y = x^{-1}$ and $y = -x^{-1}$ within the range $x \in [-1, 1]$ and $y \in [-11, 11]$, represented in the figure. Note that the exact value is $A_{\text{exact}} = 13.5916$.
 
 \paragraph{Procedure:}
 \begin{enumerate}
@@ -242,28 +245,43 @@ Evaluate the area enclosed between the curves $y = x^{-1}$ and $y = -x^{-1}$ wit
   \item[D.] Finally plot $A(N)$ and $\sigma(N)$.
 \end{enumerate}
 
-\paragraph{Note:} The code and the results must be printed. Include all in your report of Practice 1, commenting about relevant details if necessary, such as how many MC series have you employed for each $N$, what parameters are acceptable for the computational cost, etc.
-
 \subsection{Code}
 \lstinputlisting[style=fortranstyle,label={lst:ex4}]{../ex4/ex4.f90}
 
 \subsection{Results}
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.9\linewidth]{../ex4/ex4_plot.png}
+  \includegraphics[width=0.75\linewidth]{../ex4/ex4_plot.png}
   \caption{Output of exercise 4}
   \label{fig:ex4}
 \end{figure}
 
 \subsection{Discussion \& Notes}
-\ph{Comment on critical or non-trivial components} % TODO
+\begin{itemize}
+  \item \textbf{Simulation setup and method:} 
+  We tested sample sizes from $N = 100$ up to $10^7$, running each test $3$ times. In each run, we picked $N$ random points $(x, y)$ inside a rectangle of width $2$ and height $22$ (total area $= 44$). A point counts as a ``hit'' if it lands under the curve ($|y| \le |1/x|$). We then estimated the area using:
+  \[
+  \text{Area} = 44 \times \frac{\text{Hits}}{N}
+  \]
+  Finally, we averaged the $3$ runs and calculated how far the result was from the true value, $A_{\text{exact}} \approx 13.5916$.
 
-\newpage
+  \item \textbf{Code details:} 
+  To avoid dividing by zero when calculating $1/x$, the code checks \texttt{IF (x /= 0.0)} before testing a point; skipping this single line does not change the calculated area.
+  
+  \item \textbf{Sweet spot:}
+  As $N$ increases, the estimated area converges toward the analytical value ($13.5916$), with the error decreasing as $1/\sqrt{N}$, as expected for Monte Carlo integration:
+  \begin{itemize}
+    \item At $N = 10^2$, the relative error is substantial ($\approx 15\%$).
+    \item By $N = 10^4$, the error drops to approximately $1\%$.
+    \item At $N = 10^6$, the error reaches $\approx 0.1\%$, providing high precision within seconds.
+    \item At $N = 10^7$, the estimate ($13.592$) matches the true value to three decimal places ($< 0.02\%$ error).
+  \end{itemize}
+  Since no target accuracy was explicitly specified, $N = 10^6$ serves as the optimal trade-off: it achieves sub-percent accuracy ($\sim 0.1\%$) with minimal runtime, whereas scaling to $N = 10^7$ increases computation time by a factor of 10 for only a modest threefold gain in precision.\end{itemize}
 \newpage
 \newpage
 \section{Exercise 5}
 
-\subsection{Objective}
+\subsection{Question}
 Consider an harmonic oscillator of mass $m = 200\text{ g}$ and force constant $k = 2\text{ N/m}$. Integrate numerically the equation of motion and compare the results of positions and velocities with the exact analytical solution. Compute also the kinetic, potential and total energies.
 
 \paragraph{Initial position and velocity:} $x_0 = 5\text{ cm}$, $v_0 = 0$.
@@ -274,8 +292,6 @@ Consider an harmonic oscillator of mass $m = 200\text{ g}$ and force constant $k
   \item Euler predictor-corrector: $\Delta t = 0.02\text{ s}$
   \item Verlet: $\Delta t = 0.02\text{ s}$
 \end{itemize}
-
-\paragraph{Note:} The code and the results must be printed. Include all in your report of Practice 1, in particular you must compare in the same graph ``exact'' vs. ``algorithms'' (Euler, predictor-corrector and Verlet) and report all three energies, if possible in the same graph. Use different time steps and show the error between ``exact'' vs. ``algorithms'' solutions.
 
 \subsection{Code}
 \lstinputlisting[style=fortranstyle,caption={Fortran implementation of explicit Euler, Euler Predictor-Corrector, and Velocity-Verlet algorithms.},label={lst:ex5}]{../ex5/ex5.f90}

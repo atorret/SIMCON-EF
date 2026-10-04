@@ -1,16 +1,18 @@
 PROGRAM EX4
     IMPLICIT NONE
-    INTEGER, PARAMETER :: nmax = 1000
+    INTEGER, PARAMETER :: nmax = 10**7
     INTEGER, PARAMETER :: nruns = 3
     REAL, DIMENSION(nmax) :: x, y
     REAL :: A, A_average, A_exact, A_deviation, A_deviation_average
-    INTEGER :: N, J
+    INTEGER :: N, J, i
     INCLUDE '../../chdir_to_code.inc'
 
     A_exact = 4.0 * (1.0 + LOG(11.0))
 
     OPEN(UNIT=10, FILE='ex4_results.dat', STATUS='REPLACE', ACTION='WRITE')
-    DO N = 100, nmax,  100
+    DO i = 2, 7, 1
+        N = 10**i
+        WRITE(*, *) 'N = ', N
         A_average = 0.0
         A_deviation = 0.0
         DO J = 1, nruns
