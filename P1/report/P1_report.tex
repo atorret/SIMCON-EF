@@ -260,6 +260,7 @@ Evaluate the area enclosed between the curves $y = x^{-1}$ and $y = -x^{-1}$ wit
 
 \newpage
 \newpage
+\newpage
 \section{Exercise 5}
 
 \subsection{Objective}
@@ -284,58 +285,59 @@ The equations of motion for the simple harmonic oscillator ($m = 0.200\text{ kg}
 
 Figure~\ref{fig:ex5_pos} displays the simulated trajectories $x(t)$ compared against the analytical solution $x(t) = x_0 \cos(\omega_0 t)$, highlighting the effect of the step size $\Delta t$ on Euler's method as well as the comparison across all three integrators at $\Delta t = 0.02\text{ s}$.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\linewidth]{../ex5/ex5_pos_plot.png}
+  \includegraphics[width=0.78\linewidth]{../ex5/ex5_pos_plot.png}
   \caption{Oscillator position $x(t)$ over time. Top: Influence of $\Delta t \in \{0.001, 0.01, 0.02\}\text{ s}$ on the standard Euler method. Bottom: Comparison between standard Euler, Euler Predictor, and Velocity-Verlet for $\Delta t = 0.02\text{ s}$ against the analytical solution.}
   \label{fig:ex5_pos}
 \end{figure}
 
 The corresponding position errors $\vert{}x_{\text{num}}(t) - x_{\text{exact}}(t)\vert{}$ are shown on a logarithmic scale in Figure~\ref{fig:ex5_error}.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\linewidth]{../ex5/ex5_error_plot.png}
+  \includegraphics[width=0.78\linewidth]{../ex5/ex5_error_plot.png}
   \caption{Absolute error in position $\vert{}x_{\text{num}} - x_{\text{exact}}\vert{}$ (logarithmic scale). Top: Error in Euler's method as a function of $\Delta t$. Bottom: Numerical error comparison among the three algorithms for $\Delta t = 0.02\text{ s}$.}
   \label{fig:ex5_error}
 \end{figure}
 
 Figure~\ref{fig:ex5_energy} presents the individual energy balances (kinetic $E_k$, potential $E_p$, and total mechanical energy $E_{\text{tot}}$) for each algorithm at $\Delta t = 0.02\text{ s}$, comparing them with the exact reference $E_0 = 2.5\times 10^{-3}\text{ J}$.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\linewidth]{../ex5/ex5_energy_plot.png}
+  \includegraphics[width=0.78\linewidth]{../ex5/ex5_energy_plot.png}
   \caption{Kinetic, potential, and total energy evolution at $\Delta t = 0.02\text{ s}$. Top: Standard Euler. Middle: Euler Predictor. Bottom: Velocity-Verlet.}
   \label{fig:ex5_energy}
 \end{figure}
 
 A direct comparison of the total energy conservation $E_{\text{tot}}(t)$ among all three algorithms is displayed in Figure~\ref{fig:ex5_total_energy}. The absolute energy errors $\vert{}E_{\text{tot}}(t) - E_0\vert{}$ across step sizes and integration schemes are presented in Figure~\ref{fig:ex5_energy_error}.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\linewidth]{../ex5/ex5_total_energy_plot.png}
+  \includegraphics[width=0.78\linewidth]{../ex5/ex5_total_energy_plot.png}
   \caption{Comparison of total mechanical energy $E_{\text{tot}}(t)$ conservation between standard Euler, Euler Predictor, and Velocity-Verlet at $\Delta t = 0.02\text{ s}$.}
   \label{fig:ex5_total_energy}
 \end{figure}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\linewidth]{../ex5/ex5_energy_error_plot.png}
+  \includegraphics[width=0.78\linewidth]{../ex5/ex5_energy_error_plot.png}
   \caption{Absolute error in total energy $\vert{}E_{\text{tot}} - E_0\vert{}$ (logarithmic scale). Top: Effect of time step $\Delta t$ in Euler's method. Bottom: Comparison across the three methods for $\Delta t = 0.02\text{ s}$.}
   \label{fig:ex5_energy_error}
 \end{figure}
 
+\clearpage
 \subsection{Discussion \& Notes}
 \begin{itemize}
     \item \textbf{Influence of Time Step ($\Delta t$) on Euler's Method:} 
-    As observed in both the trajectory and error curves, the explicit Euler method is highly sensitive to the choice of integration step size[cite: 44, 45]. For $\Delta t = 0.02\text{ s}$ and $\Delta t = 0.01\text{ s}$, the algorithm suffers from an intrinsic numerical instability that artificially amplifies the oscillation amplitude over time[cite: 45]. Decreasing the step size to $\Delta t = 0.001\text{ s}$ significantly mitigates this growth and reduces the position error by over an order of magnitude ($\sim 10^{-3}\text{ m}$ compared to $\sim 3\times 10^{-2}\text{ m}$ for $\Delta t = 0.02\text{ s}$), though a gradual cumulative phase lag remains[cite: 44, 45].
+    As observed in both the trajectory and error curves, the explicit Euler method is highly sensitive to the choice of integration step size. For $\Delta t = 0.02\text{ s}$ and $\Delta t = 0.01\text{ s}$, the algorithm suffers from an intrinsic numerical instability that artificially amplifies the oscillation amplitude over time. Decreasing the step size to $\Delta t = 0.001\text{ s}$ significantly mitigates this growth and reduces the position error by over an order of magnitude ($\sim 10^{-3}\text{ m}$ compared to $\sim 3\times 10^{-2}\text{ m}$ for $\Delta t = 0.02\text{ s}$), though a gradual cumulative phase lag remains.
 
     \item \textbf{Performance Comparison Across Algorithms ($\Delta t = 0.02\text{ s}$):}
-    Setting the step size to $\Delta t = 0.02\text{ s}$ clearly highlights the advantages of higher-order schemes over standard Euler[cite: 44, 45]:
+    Setting the step size to $\Delta t = 0.02\text{ s}$ clearly highlights the advantages of higher-order schemes over standard Euler:
     \begin{itemize}
-        \item \emph{Standard Euler:} Demonstrates unbounded error growth reaching nearly $60\%$ of the initial amplitude by $t = 10\text{ s}$, making it unsuitable for long-term oscillatory dynamics[cite: 44, 45].
-        \item \emph{Euler Predictor-Corrector:} By averaging the predicted and current accelerations $\frac{1}{2}(a_n + a_{n+1}^{\text{pred}})$, the leading first-order truncation error terms cancel out, lowering the trajectory error down to $\sim 10^{-4}\text{ m}$[cite: 44].
-        \item \emph{Velocity-Verlet:} Yields the closest agreement with the analytical trajectory $x(t) = x_0 \cos(\omega_0 t)$, keeping the numerical error bounded within $10^{-5}\text{ m}$ to $10^{-4}\text{ m}$ throughout the entire simulation interval[cite: 44, 45].
+        \item \emph{Standard Euler:} Demonstrates unbounded error growth reaching nearly $60\%$ of the initial amplitude by $t = 10\text{ s}$, making it unsuitable for long-term oscillatory dynamics.
+        \item \emph{Euler Predictor-Corrector:} By averaging the predicted and current accelerations $\frac{1}{2}(a_n + a_{n+1}^{\text{pred}})$, the leading first-order truncation error terms cancel out, lowering the trajectory error down to $\sim 10^{-4}\text{ m}$.
+        \item \emph{Velocity-Verlet:} Yields the closest agreement with the analytical trajectory $x(t) = x_0 \cos(\omega_0 t)$, keeping the numerical error bounded within $10^{-5}\text{ m}$ to $10^{-4}\text{ m}$ throughout the entire simulation interval.
     \end{itemize}
 
     \item \textbf{Mechanical Energy Conservation and Symplecticity:}
@@ -343,14 +345,11 @@ A direct comparison of the total energy conservation $E_{\text{tot}}(t)$ among a
     \begin{equation}
         E_0 = \frac{1}{2} k x_0^2 = \frac{1}{2} (2\text{ N/m}) (0.05\text{ m})^2 = 2.5 \times 10^{-3}\text{ J}
     \end{equation}
-    Examining the energy balances illustrates the qualitative differences between the methods[cite: 43, 46]:
+    Examining the energy balances illustrates the qualitative differences between the methods:
     \begin{itemize}
-        \item In standard Euler, the phase shift between position and velocity causes a continuous, unphysical energy injection into the system[cite: 45, 46]. The total energy $E_{\text{tot}}$ undergoes an almost linear secular drift, nearly tripling to $E_{\text{tot}} \approx 6.7 \times 10^{-3}\text{ J}$ by $t = 10\text{ s}$[cite: 43, 46].
-        \item The Euler Predictor-Corrector scheme successfully bounds the total energy close to the nominal value, though without formal symplecticity it may exhibit slow drift over much longer integration times[cite: 43, 46].
-        \item Velocity-Verlet confirms its nature as a time-reversible, symplectic integrator[cite: 43, 46]. The kinetic and potential energies alternate symmetrically each quarter period, and total energy oscillates within tight bounds around $E_0$ without secular drift, making it the algorithm of choice for physical simulations and molecular dynamics[cite: 33, 43, 46].
+        \item In standard Euler, the phase shift between position and velocity causes a continuous, unphysical energy injection into the system. The total energy $E_{\text{tot}}$ undergoes an almost linear secular drift, nearly tripling to $E_{\text{tot}} \approx 6.7 \times 10^{-3}\text{ J}$ by $t = 10\text{ s}$.
+        \item The Euler Predictor-Corrector scheme successfully bounds the total energy close to the nominal value, though without formal symplecticity it may exhibit slow drift over much longer integration times.
+        \item Velocity-Verlet confirms its nature as a time-reversible, symplectic integrator. The kinetic and potential energies alternate symmetrically each quarter period, and total energy oscillates within tight bounds around $E_0$ without secular drift, making it the algorithm of choice for physical simulations and molecular dynamics.
     \end{itemize}
 \end{itemize}
-
-% --- END EXERCISES ---
-
 \end{document}
