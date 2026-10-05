@@ -132,14 +132,15 @@ program leapfroglj
   !    (j-0.5)*delg and its volume is (4/3)*pi*(r_out^3-r_in^3).
   !    nid (ideal-gas occupancy of that shell) is real: with the
   !    implicit typing, a name starting with n would be integer.
-  open(5, file='g-leap.dat', status='unknown')
-  do j = 0, nhis-1
-     rr = delg*(dfloat(j) + 0.5d0)
-     vb = (dfloat(j+1)**3 - dfloat(j)**3)*delg**3
+  open(15, file='g-leap.dat', status='unknown')
+  do j = 1, nhis
+     rr = delg*(dfloat(j) - 0.5d0)
+     vb = (dfloat(j)**3 - dfloat(j-1)**3)*delg**3
      nid = (4.d0/3.d0)*pi*vb*rho
      g(j) = g(j)/(dfloat(nconf)*dfloat(natoms)*nid)
-     write(5,*) rr, g(j)
+     write(15,*) rr, g(j)
   end do
+  close(15)
   close(5)
 
   ! 7. Saving last configuration in A and A/ps
