@@ -77,10 +77,13 @@ program leapfroglj
 
   write(8,'(a)') '# t ekin epot etail etot pkin pvir ptail ptot'
 
+  print *, 'Iniciando simulacion MD (', nconf, ' pasos)...'
   do i = 1, nconf
+     if (mod(i, 1000) == 0) then
+        print *, '  -> Completado paso ', i, ' de ', nconf
+     end if
      call forces(natoms, r, boxlength, accel, rc, epot, vir, nhis, g, delg)
-     call velpos(natoms, vinf, accel, deltat, r, nf, ecin, temp, &
-                 boxlength)
+     
      ! Conserved NVE energy (no tail). Thermodynamic totals include it.
      etot = ecin + epot
      etot_corr = etot + etail
