@@ -14,9 +14,13 @@ REF_RE = re.compile(r"\\(?:eq|page|auto)?ref\{([^}]+)\}")
 PH_RE = re.compile(r"\\ph\{([^}]*)\}")
 TODO_RE = re.compile(r"%\s*TODO\b")
 EX_SECTION_RE = re.compile(r"\\section\{Exercise\s+(\d+)\}", re.IGNORECASE)
-EX_FILE_RE = re.compile(r"ex(\d+)", re.IGNORECASE)
 NATURAL_EX_RE = re.compile(r"^ex(\d+)$", re.IGNORECASE)
 INCLUDE_CMD_RE = re.compile(r"\\(includegraphics|lstinputlisting)(?![A-Za-z])")
+CAPTION_RE = re.compile(r"\\caption\{")
+GENERIC_CAPTION_RE = re.compile(r"^\s*(Output|Screenshot) of exercise\s+\d+\s*\.?\s*$", re.IGNORECASE)
+FIGURE_ENV_RE = re.compile(r"\\begin\{figure\}(.*?)\\end\{figure\}", re.DOTALL)
+SKIP_DIRS = {"report", "data", "material"}
+NUM_RE = re.compile(r"(\d+)")
 
 
 def strip_comments(text: str) -> str:
@@ -64,23 +68,27 @@ def iter_includes(text: str) -> list[tuple[str, str]]:
     return found
 
 
-def natural_ex_key(name: str) -> tuple[int, str]:
-    m = NATURAL_EX_RE.match(name)
-    return (int(m.group(1)), name) if m else (10**9, name)
+def natural_key(name: str) -> list:
+    return [int(tok) if tok.isdigit() else tok.lower() for tok in NUM_RE.split(name)]
 
 
 def discover_exercises(practice_root: Path) -> list[str]:
+    """Exercise directories: `ex*` if any, else any subdir holding a .f90."""
     if not practice_root.is_dir():
         return []
-    dirs = [
-        p.name
+    subdirs = [
+        p
         for p in practice_root.iterdir()
-        if p.is_dir() and NATURAL_EX_RE.match(p.name)
+        if p.is_dir() and p.name.lower() not in SKIP_DIRS and not p.name.startswith(".")
     ]
-    if dirs:
-        return sorted(dirs, key=natural_ex_key)
+    ex_dirs = [p.name for p in subdirs if NATURAL_EX_RE.match(p.name)]
+    if ex_dirs:
+        return sorted(ex_dirs, key=natural_key)
+    code_dirs = [p.name for p in subdirs if any(p.glob("*.f90"))]
+    if code_dirs:
+        return sorted(code_dirs, key=natural_key)
     f90s = [p.stem for p in practice_root.glob("*.f90") if p.is_file()]
-    return sorted(f90s, key=natural_ex_key)
+    return sorted(f90s, key=natural_key)
 
 
 def mentioned_exercises(tex: str) -> set[str]:
@@ -88,11 +96,32 @@ def mentioned_exercises(tex: str) -> set[str]:
     for m in EX_SECTION_RE.finditer(tex):
         found.add(f"ex{m.group(1)}")
     for _, path in iter_includes(tex):
-        stem = Path(path.replace("\\", "/")).stem
-        em = EX_FILE_RE.match(stem)
-        if em:
-            found.add(f"ex{em.group(1)}")
+        parts = Path(path.replace("\\", "/")).parts
+        if len(parts) >= 2 and parts[0] == "..":
+            found.add(parts[1])
+        found.add(Path(path).stem)
     return found
+
+
+def iter_captions(text: str) -> list[str]:
+    caps = []
+    for m in CAPTION_RE.finditer(text):
+        body, _ = read_delimited(text, m.end() - 1, "{", "}")
+        caps.append(body)
+    return caps
+
+
+def unused_pngs(practice_root: Path, exercises: list[str], report_dir: Path, includes) -> list[str]:
+    used = {(report_dir / rel.replace("\\", "/")).resolve() for _o, rel in includes}
+    out = []
+    for ex in exercises:
+        ex_dir = practice_root / ex
+        if not ex_dir.is_dir():
+            continue
+        for png in sorted(ex_dir.glob("*.png"), key=lambda p: natural_key(p.name)):
+            if png.resolve() not in used:
+                out.append(f"{ex}/{png.name}")
+    return out
 
 
 def collect_labels(stripped: str) -> set[str]:
@@ -133,6 +162,15 @@ def lint(tex_path: Path) -> int:
     expected = discover_exercises(practice_root)
     mentioned = mentioned_exercises(stripped)
     missing_ex = [e for e in expected if e not in mentioned]
+
+    generic_caps = [c for c in iter_captions(stripped) if GENERIC_CAPTION_RE.match(c)]
+    ref_set = set(refs)
+    unreferenced_figs = []
+    for fig in FIGURE_ENV_RE.findall(stripped):
+        for lab in LABEL_CMD_RE.findall(fig):
+            if lab not in ref_set:
+                unreferenced_figs.append(lab)
+    unused = unused_pngs(practice_root, expected, report_dir, includes)
 
     print(f"Report: {tex_path}")
     print(f"Practice root: {practice_root}")
@@ -176,6 +214,17 @@ def lint(tex_path: Path) -> int:
             print(f"  - {e}")
     else:
         print("Coverage: all discovered exercises are mentioned")
+
+    print()
+    print("Style warnings (non-fatal):")
+    if not (generic_caps or unreferenced_figs or unused):
+        print("  none")
+    for c in generic_caps:
+        print(f"  - generic caption, describe the panels instead: \"{c.strip()}\"")
+    for lab in unreferenced_figs:
+        print(f"  - figure never cited with \\ref: {lab}")
+    for png in unused:
+        print(f"  - plot not included in report: {png}")
 
     return 1 if missing_assets else 0
 

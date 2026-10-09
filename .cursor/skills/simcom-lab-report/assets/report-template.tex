@@ -4,17 +4,19 @@
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
 \usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{graphicx}
 \usepackage{xcolor}
 \usepackage{listings}
 \usepackage{float}
 \usepackage{hyperref}
 
-% --- metadata (agent: auto-fill practice id/title only) ---
+% --- metadata (agent: set practice id/title; keep authors and date) ---
 \newcommand{\practiceid}{N}
 \newcommand{\practicetitle}{Practice N}
-\newcommand{\reportauthors}{[Author Name]}
-\newcommand{\reportdate}{[Date]}
+\newcommand{\reportauthors}{Arnau Torret \& Arnau Montull}
+\newcommand{\reportdate}{\today}
 \newcommand{\ph}[1]{\emph{[#1]}}
 
 \hypersetup{
@@ -102,11 +104,12 @@
 
 \begin{document}
 
+\hypersetup{pageanchor=false}
 \begin{titlepage}
 \centering
 \vspace*{1.5cm}
-\IfFileExists{material/images/upc-logo.png}{%
-  \includegraphics[width=2.2cm]{material/images/upc-logo.png}\\[1.2cm]
+\IfFileExists{../../upc-logo.png}{%
+  \includegraphics[width=5cm]{../../upc-logo.png}\\[1.2cm]
 }{\vspace{3.4cm}}
 
 {\large\bfseries UNIVERSITAT POLITÈCNICA DE CATALUNYA}\\[0.45cm]
@@ -124,6 +127,7 @@
 \textbf{Date:} \reportdate
 \end{flushright}
 \end{titlepage}
+\hypersetup{pageanchor=true}
 
 % --- BEGIN EXERCISES ---
 % Agent: replace this region with one section per exercise (see SKILL.md).
