@@ -1,0 +1,350 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{float}
+\usepackage{hyperref}
+
+% --- metadata (agent: set practice id/title; keep authors and date) ---
+\newcommand{\practiceid}{2}
+\newcommand{\practicetitle}{Practice 2}
+\newcommand{\reportauthors}{Arnau Torret \& Arnau Montull}
+\newcommand{\reportdate}{\today}
+\newcommand{\ph}[1]{\emph{[#1]}}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  urlcolor=blue,
+  citecolor=blue,
+  pdftitle={\practicetitle},
+  pdfauthor={\reportauthors}
+}
+
+\definecolor{codebg}{RGB}{247,247,247}
+\definecolor{codeframe}{RGB}{200,200,200}
+\definecolor{codekw}{RGB}{0,71,171}
+\definecolor{codetype}{RGB}{11,110,79}
+\definecolor{codeattr}{RGB}{125,60,152}
+\definecolor{codestr}{RGB}{163,21,21}
+\definecolor{codecmt}{RGB}{106,115,125}
+
+% listings has no [free]Fortran dialect; define free-form Fortran 90 here.
+\lstdefinelanguage{Fortran90}{
+  sensitive=false,
+  alsoletter={_},
+  morekeywords=[1]{
+    program,end,if,then,else,elseif,endif,do,while,enddo,
+    call,return,contains,subroutine,function,module,use,only,
+    select,case,default,exit,cycle,stop,continue,
+    allocate,deallocate,open,close,read,write,print,
+    include,implicit,none,interface,procedure,result,
+    where,elsewhere,block,pure,elemental,recursive
+  },
+  morekeywords=[2]{
+    integer,real,double,precision,complex,logical,character,
+    type,class,kind
+  },
+  morekeywords=[3]{
+    parameter,dimension,allocatable,intent,in,out,inout,
+    optional,pointer,target,save,public,private,external,
+    intrinsic,contiguous,value
+  },
+  morecomment=[l]!,
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstdefinestyle{fortranstyle}{
+  language=Fortran90,
+  basicstyle=\ttfamily\footnotesize,
+  backgroundcolor=\color{codebg},
+  keywordstyle=[1]\color{codekw}\bfseries,
+  keywordstyle=[2]\color{codetype}\bfseries,
+  keywordstyle=[3]\color{codeattr},
+  commentstyle=\color{codecmt}\itshape,
+  stringstyle=\color{codestr},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=8pt,
+  frame=single,
+  rulecolor=\color{codeframe},
+  breaklines=true,
+  showstringspaces=false,
+  keepspaces=true,
+  columns=fullflexible,
+  tabsize=4,
+  captionpos=b,
+  xleftmargin=2em,
+  framexleftmargin=1.5em
+}
+\lstdefinestyle{datastyle}{
+  language={},
+  basicstyle=\ttfamily\footnotesize,
+  backgroundcolor=\color{codebg},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=8pt,
+  frame=single,
+  rulecolor=\color{codeframe},
+  breaklines=true,
+  showstringspaces=false,
+  keepspaces=true,
+  columns=fullflexible,
+  tabsize=4
+}
+\lstset{style=fortranstyle}
+
+\begin{document}
+
+\hypersetup{pageanchor=false}
+\begin{titlepage}
+\centering
+\vspace*{1.5cm}
+\IfFileExists{../../upc-logo.png}{%
+  \includegraphics[width=5cm]{../../upc-logo.png}\\[1.2cm]
+}{\vspace{3.4cm}}
+
+{\large\bfseries UNIVERSITAT POLITÈCNICA DE CATALUNYA}\\[0.45cm]
+{\small Escola Tècnica Superior d'Enginyeria de Telecomunicacions de Barcelona (ETSETB)}
+
+\vspace{3.2cm}
+
+{\LARGE\bfseries \practicetitle}\\[1.1cm]
+{\large Grau en Enginyeria Física}
+
+\vfill
+\begin{flushright}
+\textbf{Authors:} \reportauthors\\[0.35cm]
+\textbf{Subject:} SIMCOM\\[0.35cm]
+\textbf{Date:} \reportdate
+\end{flushright}
+\end{titlepage}
+\hypersetup{pageanchor=true}
+
+% --- BEGIN EXERCISES ---
+
+\section{Exercise 1}
+
+\subsection{Question}
+Simulation of a simple Lennard-Jones fluid, such as liquid argon, with a hand-made FORTRAN MD code which incorporates the Leap-frog Verlet algorithm.
+
+\paragraph{STEP 1: Understanding the code.}
+\begin{itemize}
+  \item Open the FORTRAN file \texttt{leapfroglj.f} and have a look.
+  \item Note that you'll need 2 auxiliary files: (1)~\texttt{leap-lj.data} and (2)~\texttt{leap-conf.data}, containing (1)~data input and (2)~initial coordinates and velocities, respectively.
+  \item The main program is ready to simulate a LJ liquid of 500 atoms of mass $39.948\text{ uma}$, $\sigma = 3.405\text{ \AA}$ and $\varepsilon/k_B = 119.8\text{ K}$ (Argon), with a time step of $\Delta t = 0.01\text{ ps}$. Remember that the LJ potential is of the form:
+\begin{equation}
+  V_{\text{LJ}}(r) = 4\varepsilon\left[\left(\frac{\sigma}{r}\right)^{12} - \left(\frac{\sigma}{r}\right)^{6}\right].
+\end{equation}
+  \item Compile the code and make a run of $10000$ time steps. If you compute the temperature $T$ and total energy $E$ (kinetic + potential) you will get the following figures.
+\end{itemize}
+
+\subsection{Code}
+\lstinputlisting[style=fortranstyle,caption={Leap-frog Verlet molecular dynamics of a truncated Lennard-Jones liquid in the NVE ensemble.},label={lst:ex1}]{../leapfrog_step1/leapfroglj.f90}
+
+\subsection{Results}
+A run of $N_{\text{conf}} = 10000$ steps was performed for $N = 500$ argon atoms interacting through a Lennard-Jones potential truncated at $r_c = 2.5\sigma$, with $\Delta t = 0.01\text{ ps}$. Positions, velocities and energies are stored in Lennard-Jones reduced units. Figure~\ref{fig:ex1} shows the instantaneous total energy $E_{\text{tot}} = E_{\text{kin}} + E_{\text{pot}}$ (without the long-range tail) and the kinetic temperature $T$ along the trajectory.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\linewidth]{../leapfrog_step1/md_results_plot.png}
+  \caption{Time evolution of the Lennard-Jones NVE liquid over $t \in [0, 46.4]$ (reduced units). Top: total truncated energy $E_{\text{tot}} = E_{\text{kin}} + E_{\text{pot}}$. Bottom: kinetic temperature $T = 2E_{\text{kin}}/(3N-3)$.}
+  \label{fig:ex1}
+\end{figure}
+
+\subsection{Discussion \& Notes}
+\begin{itemize}
+  \item \textbf{Method and setup:}
+  The integration algorithm is leap-frog Verlet. Velocities are stored at half-steps $t+\Delta t/2$; the on-step velocity used for the kinetic energy is the average of the two neighbouring half-step values. The force is the truncated Lennard-Jones force with cutoff $r_c = 2.5\sigma$ and minimum-image periodic boundaries. The input files fix $N = 500$, $m = 39.948\text{ u}$, $\sigma = 3.405\text{ \AA}$, $\varepsilon/k_B = 119.8\text{ K}$ and $\Delta t = 0.01\text{ ps}$. The cubic box length read from \texttt{leap-conf.data} is $L = 28.694\text{ \AA}$, so
+  \begin{equation}
+    L^* = \frac{L}{\sigma} = 8.427, \qquad
+    \rho^* = \frac{N}{(L^*)^3} = 0.835.
+  \end{equation}
+  The reduction of time is $\tau = \sigma\sqrt{m/\varepsilon}\,\sqrt{10/R} = 2.156\text{ ps}$, hence $\Delta t^* = 4.637\times 10^{-3}$ and the run covers $t^*_{\max} = 46.37$ ($100\text{ ps}$).
+
+  \item \textbf{Code details:}
+  All pair forces and the potential are evaluated in reduced units after subroutine \texttt{reduced} rescales coordinates, velocities, $L$ and $\Delta t$. The temperature uses $n_f = 3N-3 = 1497$ degrees of freedom, removing the three centre-of-mass modes. The NVE energy written to \texttt{energy-leap.dat} is the truncated pair sum $E_{\text{kin}}+E_{\text{pot}}$; the tail correction is introduced only in Exercise~2.
+
+  \item \textbf{Results vs expectations:}
+  Leap-frog Verlet is a symplectic, time-reversible integrator, so the truncated energy must oscillate about a constant with no secular drift.
+  \begin{itemize}
+    \item \emph{Energy:} $\langle E_{\text{tot}}\rangle = -2266.65$, with a peak-to-peak range of about $4$ reduced energy units ($\min = -2268.56$, $\max = -2264.48$) and $\sigma_E = 0.537$. Relative to $\vert{}E_{\text{tot}}\vert{}$ this is a fluctuation of $0.024\%$. A linear fit of $E_{\text{tot}}(t)$ gives a slope of $-2.7\times 10^{-3}$ per reduced time unit, i.e.\ a change of $-0.13$ over the whole run, well within one standard deviation: there is no measurable energy drift.
+    \item \emph{Temperature:} $T$ fluctuates around $\langle T^*\rangle = 0.713$ ($\sigma_T = 0.0175$), corresponding to $T = T^*\,\varepsilon/k_B = 85.4\text{ K}$. Together with $\rho^* = 0.835$, the state point lies in the dense-liquid region of the truncated Lennard-Jones fluid (the lecture RDF/VACF maps at $T^* = 0.8$ span $\rho^* \in [0.764, 0.959]$).
+  \end{itemize}
+
+  \item \textbf{Conclusion:}
+  The supplied leap-frog code conserves the truncated NVE energy to better than $0.03\%$ and produces a stable liquid-argon trajectory. This run is the starting point for the structural, thermodynamic and dynamical analyses of Exercises~2 and~3.
+\end{itemize}
+
+\newpage
+\section{Exercise 2}
+
+\subsection{Question}
+\paragraph{STEP 2: Analysing the structure and calculating thermodynamic properties.}
+\begin{itemize}
+  \item Modify the code to calculate the radial distribution function (RDF) $g(r)$ from the MD simulation. Compute the RDF for a run of $10000$ steps. Plot $g(r)$ vs.\ $r$ using reduced units.
+  \item Modify the code to calculate the pressure $P$. Compute the mean values of the total and different contributions to $E$ and $P$. Include the tail corrections. Analyze the convergence of the results as a function of the simulation length. Use reduced units.
+\end{itemize}
+
+\subsection{Code}
+\lstinputlisting[style=fortranstyle,caption={Leap-frog MD of a Lennard-Jones liquid with RDF histogram, virial pressure and long-range tail corrections.},label={lst:ex2}]{../leapfrog_step2/leapfroglj.f90}
+
+\subsection{Results}
+The same $10000$-step NVE trajectory ($N = 500$, $\rho^* = 0.835$, $r_c = 2.5\sigma$) was used to accumulate $g(r)$ and the kinetic, virial and tail contributions to the energy and the pressure, all in reduced units.
+
+Figure~\ref{fig:ex2_rdf} shows the radial distribution function up to $L^*/2 = 4.21$. Figure~\ref{fig:ex2_energy} displays the instantaneous kinetic, truncated-potential, tail and total energies, and Figure~\ref{fig:ex2_pressure} the corresponding pressure contributions (kinetic, configurational, and total), following the layout of the reference results. The run averages are listed below, and Figure~\ref{fig:ex2_conv} tracks the running means $\langle E_{\text{tot}}\rangle$ and $\langle P_{\text{tot}}\rangle$ as a function of the simulation length.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.78\linewidth]{../leapfrog_step2/rdf_plot.png}
+  \caption{Radial distribution function $g(r)$ of the Lennard-Jones liquid ($N = 500$, $\rho^* = 0.835$, $T^* = 0.713$) accumulated over $10000$ steps with $1000$ spherical shells up to $r = L/2$. The dashed line marks the ideal-gas limit $g(r) = 1$.}
+  \label{fig:ex2_rdf}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.78\linewidth]{../leapfrog_step2/energy_plot.png}
+  \caption{Energy contributions in reduced units versus time. Kinetic $E_{\text{kin}}$, truncated pair potential $E_{\text{pot}}$, constant long-range tail $E_{\text{tail}}$, and thermodynamic total $E_{\text{tot}} = E_{\text{kin}} + E_{\text{pot}} + E_{\text{tail}}$.}
+  \label{fig:ex2_energy}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.78\linewidth]{../leapfrog_step2/pressure_plot.png}
+  \caption{Pressure contributions in reduced units versus time, matching the reference layout. Kinetic $P_{\text{kin}} = 2E_{\text{kin}}/(3V)$, configurational (virial plus tail) $P_{\text{pot}}$, and total $P_{\text{tot}} = P_{\text{kin}} + P_{\text{pot}}$.}
+  \label{fig:ex2_pressure}
+\end{figure}
+
+\lstinputlisting[style=datastyle,caption={Run averages of the energy and pressure contributions in reduced units (\texttt{averages-leap.dat}).}]{../leapfrog_step2/averages-leap.dat}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.78\linewidth]{../leapfrog_step2/convergence_plot.png}
+  \caption{Convergence of the thermodynamic totals with simulation length. Top: running mean of $E_{\text{tot}}$. Bottom: running mean of $P_{\text{tot}}$. Both averages are taken from $t = 0$ up to the current time.}
+  \label{fig:ex2_conv}
+\end{figure}
+
+\clearpage
+\subsection{Discussion \& Notes}
+\begin{itemize}
+  \item \textbf{Method and setup:}
+  Pair distances are binned into $n_{\text{his}} = 1000$ shells of width $\Delta r = L/(2n_{\text{his}}) = 4.21\times 10^{-3}\sigma$ during the force loop. The RDF in shell $i$ is normalised by the ideal-gas content of the corresponding spherical shell,
+  \begin{equation}
+    g(r_i) = \frac{\langle n(r_i)\rangle}{N_{\text{conf}}\,N\,\frac{4\pi}{3}\bigl[(i\Delta r)^3-((i-1)\Delta r)^3\bigr]\rho},
+  \end{equation}
+  counting each pair twice. The pressure uses the atomic virial of the truncated force, $P_{\text{vir}} = (1/(3V))\sum_{i<j}\vec{r}_{ij}\cdot\vec{f}_{ij}$, plus the analytic long-range tail for $g(r)\approx 1$ beyond $r_c$:
+  \begin{align}
+    E_{\text{tail}} &= \frac{8\pi}{3}\rho N\left(\frac{1}{3r_c^9} - \frac{1}{r_c^3}\right), \\
+    P_{\text{tail}} &= \frac{16\pi}{3}\rho^2\left(\frac{2}{3r_c^9} - \frac{1}{r_c^3}\right).
+  \end{align}
+  With $r_c = 2.5$ these constants evaluate to $E_{\text{tail}} = -223.67$ and $P_{\text{tail}} = -0.7465$.
+
+  \item \textbf{Code details:}
+  The histogram and the pair virial are accumulated inside subroutine \texttt{lj}, so every configuration is sampled at no extra pair loop. Distances for $g(r)$ are accepted up to $L/2$ (minimum image), independently of the force cutoff $r_c = 2.5$. The NVE conserved energy remains $E_{\text{kin}}+E_{\text{pot}}$; the thermodynamic totals written to \texttt{thermo-leap.dat} add the tail.
+
+  \item \textbf{Results vs expectations:}
+  \begin{itemize}
+    \item \emph{RDF:} $g(r)$ vanishes below the repulsive core ($r \lesssim 0.93$) and develops the oscillations of a dense liquid, in close agreement with the reference plot. The first peak sits at $r = 1.089$ with $g = 3.00$, the first minimum at $r = 1.544$ with $g = 0.576$, and the second and third peaks at $r = 2.079$ ($g = 1.28$) and $r = 2.985$ ($g = 1.11$). At large $r$, $g(r)$ relaxes toward $1$ ($g(L/2) = 0.993$).
+    \item \emph{Energy:} The run averages are $\langle E_{\text{kin}}\rangle = 533.66$, $\langle E_{\text{pot}}\rangle = -2800.31$, $E_{\text{tail}} = -223.67$ and $\langle E_{\text{tot}}\rangle = -2490.32$. Kinetic and potential energies fluctuate in anti-phase ($\sigma \approx 13.1$ each) and largely cancel, leaving $\sigma(E_{\text{kin}}+E_{\text{pot}}) = 0.537$ as in Exercise~1. Per particle, $\langle E_{\text{tot}}\rangle/N = -4.981$.
+    \item \emph{Pressure:} $\langle P_{\text{kin}}\rangle = 0.594$, $\langle P_{\text{vir}}\rangle = 0.100$, $P_{\text{tail}} = -0.746$ and $\langle P_{\text{tot}}\rangle = -0.052$. The kinetic part is essentially $\rho^* T^* = 0.596$; the large negative tail almost cancels $P_{\text{kin}}+P_{\text{vir}}$, so the total pressure fluctuates around zero ($\sigma_P = 0.120$), as in the reference figure. A slightly negative $P^*$ is consistent with a dense Lennard-Jones liquid close to coexistence at this $T^*$.
+    \item \emph{Convergence:} After $10\%$ of the run ($t^* = 4.64$) the running means are already $\langle E_{\text{tot}}\rangle = -2490.53$ and $\langle P_{\text{tot}}\rangle = -0.078$. By $t^* = 23.2$ (half the trajectory) they have settled at $-2490.27$ and $-0.047$, and the final values ($-2490.32$, $-0.052$) change only in the second decimal of $P$ and the first decimal of $E$. Energy is converged to better than $0.01\%$ once a few reduced time units have been averaged; the pressure, being a difference of large opposite contributions, needs of order $t^* \sim 15$--$20$ before the running mean is stable to $\sim 0.01$.
+  \end{itemize}
+
+  \item \textbf{Conclusion:}
+  The $10000$-step run is long enough for both $E_{\text{tot}}$ and $P_{\text{tot}}$. The tail corrections are essential: omitting them would shift the energy by $224$ reduced units and the pressure by $0.75$, turning a near-zero pressure into a spuriously positive $P^* \approx 0.69$. The RDF matches the liquid-argon reference curve peak by peak.
+\end{itemize}
+
+\newpage
+\section{Exercise 3}
+
+\subsection{Question}
+\paragraph{STEP 3: Analysing the dynamics.}
+\begin{itemize}
+  \item Modify the code to calculate the velocity autocorrelation function (VACF) and the mean square displacement (MSD):
+\begin{equation}
+  C(t) = \bigl\langle \vec{v}(t)\cdot\vec{v}(0)\bigr\rangle,
+\end{equation}
+\begin{equation}
+  r^{2}(t) = \bigl\langle \bigl[\vec{r}(t)-\vec{r}(0)\bigr]^{2}\bigr\rangle.
+\end{equation}
+  Compute the VACF and the MSD for a run of $10000$ steps. Plot the results.
+  \item Write a code to calculate the spectral density (SDW) of the VACF:
+\begin{equation}
+  S(\omega) = \int_0^{\infty} dt\, C(t)\cos(\omega t).
+  \label{eq:sdw}
+\end{equation}
+  Use a Simpson $3/8$ rule or similar. Plot the results.
+  \item Use Einstein's diffusion formula to obtain the self-diffusion coefficient $D$:
+\begin{equation}
+  D = \lim_{t\to\infty}\frac{1}{6t}\, r^{2}(t).
+  \label{eq:einstein}
+\end{equation}
+\end{itemize}
+
+\subsection{Code}
+\lstinputlisting[style=fortranstyle,caption={Leap-frog MD with multiple-origin VACF and MSD, Simpson 3/8 spectral density of the VACF, and Einstein self-diffusion coefficient.},label={lst:ex3}]{../leapfrog_step3/leapfroglj.f90}
+
+\subsection{Results}
+On the same $10000$-step trajectory, $C(t)$ and $r^{2}(t)$ were accumulated with multiple time origins over a correlation window of $t^* \approx 5$ ($1074$ lags, a multiple of $6$ so that Simpson's $3/8$ rule has complete panels). Figure~\ref{fig:ex3_vacf} shows the VACF, Figure~\ref{fig:ex3_msd} the MSD together with the linear Einstein fit, Figure~\ref{fig:ex3_sdw} the cosine transform $S(\omega)$, and Figure~\ref{fig:ex3_D} the instantaneous $D(t) = r^{2}(t)/(6t)$ compared with the fitted $D$.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.78\linewidth]{../leapfrog_step3/vacf_plot.png}
+  \caption{Velocity autocorrelation $C(t) = \langle\vec{v}(t)\cdot\vec{v}(0)\rangle$ in reduced units, averaged over particles and time origins. The VACF starts at $C(0) = 2.14$, becomes negative at $t^* = 0.14$ (cage backscattering) and has decayed by $t^* \approx 0.65$.}
+  \label{fig:ex3_vacf}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.78\linewidth]{../leapfrog_step3/msd_plot.png}
+  \caption{Mean square displacement $r^{2}(t)$ in reduced units. The dashed line is the least-squares fit $r^{2}(t) = 6Dt + b$ over the diffusive window $t^* \in [1.24, 4.98]$, giving $D^* = 0.0331$.}
+  \label{fig:ex3_msd}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.78\linewidth]{../leapfrog_step3/sdw_plot.png}
+  \caption{Spectral density $S(\omega) = \int C(t)\cos(\omega t)\,dt$ of the VACF, obtained with the composite Simpson $3/8$ rule for $\omega = 0,1,\ldots,100$ (reduced units). The maximum is $S = 0.158$ at $\omega = 8$.}
+  \label{fig:ex3_sdw}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.78\linewidth]{../leapfrog_step3/diffusion_plot.png}
+  \caption{Instantaneous Einstein estimator $D(t) = r^{2}(t)/(6t)$ (reduced units). The shaded region is the linear-fit window; the dashed line is the fitted self-diffusion coefficient $D^* = 0.0331$.}
+  \label{fig:ex3_D}
+\end{figure}
+
+\clearpage
+\subsection{Discussion \& Notes}
+\begin{itemize}
+  \item \textbf{Method and setup:}
+  Following the lecture SAMPLE scheme, a new time origin is stored every $5$ steps in a circular buffer. Positions used for the MSD are unwrapped (the leap-frog update is unfolded by the minimum-image displacement of each step) so that $r^{2}(t)$ is not folded back by the periodic box. The correlation window $n_{\text{cor}} = 1074$ covers $t^* = 4.98$, long enough for $C(t)$ to vanish and for $r^{2}(t)$ to be linear. The spectral density~\eqref{eq:sdw} is evaluated with the composite Simpson $3/8$ rule on the decaying part of $C(t)$ (the first quarter of the window, $t^* \lesssim 1.24$, beyond which $C(t)\approx 0$). Einstein's $D$ is the slope of $r^{2}(t)$ over the last three quarters of the window, discarding the ballistic rise; as a cross-check we also compute the Green--Kubo integral $D = (1/3)\int_0^{t_{\max}} C(t)\,dt$ with the trapezoidal rule.
+
+  \item \textbf{Code details:}
+  Subroutine \texttt{sample} has three switches (initialise / accumulate / normalise), as in Frenkel \& Smit. The MSD must not see periodic wrapping: \texttt{runw} holds the continuous trajectories. $n_{\text{cor}}$ is forced to be a multiple of $6$ so that every Simpson $3/8$ panel has three sub-intervals. The intercept of the linear fit is stored in \texttt{yint} because an implicit-typing name \texttt{intercept} would be an integer.
+
+  \item \textbf{Results vs expectations:}
+  The four curves reproduce the reference plots for liquid argon.
+  \begin{itemize}
+    \item \emph{VACF:} $C(0) = 2.138$, in agreement with the equilibrium identity $C(0) = \langle v^2\rangle = 3T^*$ ($3\langle T^*\rangle = 2.139$ in reduced units where $m = 1$). After a fast decay the function crosses zero at $t^* = 0.139$ and reaches a backscattering minimum $C = -0.256$ at $t^* = 0.195$. This negative lobe is the signature of a dense liquid: particles rebound from their first neighbour shell (the RDF peak at $r = 1.09$). By $t^* = 0.65$ one has $\vert{}C\vert{} < 0.02$, and $C(t)$ then fluctuates around zero ($C(t_{\max}) = 0.007$), matching both the reference VACF and the lecture curves at $\rho^* \approx 0.84$, $T^* \approx 0.8$.
+    \item \emph{MSD:} $r^{2}(t)$ is quadratic at very short times (ballistic $r^{2} \approx \langle v^2\rangle t^2$) and becomes linear for $t^* \gtrsim 1$. At the end of the window, $r^{2}(4.98) = 1.016$. The fit $r^{2} = 6Dt + b$ on $t^* \in [1.24, 4.98]$ gives $D^* = 0.03313$ (slope $0.1988$, intercept $0.0254$).
+    \item \emph{Spectral density:} $S(\omega)$ peaks at $\omega = 8$ with $S = 0.158$ ($S(0) = 0.100$) and has decayed to $5.4\times 10^{-3}$ by $\omega = 40$ and to $5\times 10^{-5}$ by $\omega = 100$, in quantitative agreement with the reference SDW.
+    \item \emph{Self-diffusion:} $D(t) = r^{2}(t)/(6t)$ overshoots to $0.0412$ at $t^* = 0.31$ (end of the ballistic/cage regime) and then decreases toward the Einstein value. The fitted $D^* = 0.03313$ and the Green--Kubo estimate $D^*_{\text{GK}} = 0.03358$ differ by $1.4\%$. Converting with $\sigma^2/\tau = 5.377\text{ \AA}^2\text{ ps}^{-1}$ yields
+    \begin{equation}
+      D = D^*\frac{\sigma^2}{\tau} = 0.178\text{ \AA}^2\text{ ps}^{-1}.
+    \end{equation}
+  \end{itemize}
+
+  \item \textbf{Conclusion:}
+  A correlation window of $5$ reduced time units is sufficient: the VACF has died, the MSD is linear, and Einstein and Green--Kubo agree to about one percent. The negative VACF lobe and $D^* = 0.033$ confirm that the simulated state point is a dense Lennard-Jones liquid, consistent with the RDF of Exercise~2 and with the reference figures.
+\end{itemize}
+\end{document}
