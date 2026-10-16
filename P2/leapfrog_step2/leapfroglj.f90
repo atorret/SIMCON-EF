@@ -61,7 +61,7 @@ program leapfroglj
    pkin_sum = 0.d0
    pvir_sum = 0.d0
  
-   write(8,'(a)') '# t ekin epot etail etot pkin pvir ptail ptot'
+   write(8,'(a)') '# t etot pkin pvir ptail ptot'
  
    print *, 'Iniciando simulacion MD (', nconf, ' pasos)...'
    do i = 1, nconf
@@ -83,7 +83,7 @@ program leapfroglj
       pvir_sum = pvir_sum + pvir
       write(3,*) i*deltat, etot
       write(4,*) i*deltat, temp
-      write(8,*) i*deltat, ecin, epot, etail, etot_corr, pkin, pvir, ptail, ptot
+      write(8,*) i*deltat, etot_corr, pkin, pvir, ptail, ptot
    end do
    close(3)
    close(4)

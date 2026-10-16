@@ -148,14 +148,15 @@ Simulation of a simple Lennard-Jones fluid, such as liquid argon, with a hand-ma
 \end{itemize}
 
 \subsection{Code}
-\lstinputlisting[style=fortranstyle,caption={Leap-frog Verlet molecular dynamics of a truncated Lennard-Jones liquid in the NVE ensemble.},label={lst:ex1}]{../leapfrog_step1/leapfroglj.f90}
+This step runs the leap-frog program supplied with the practice, transcribed to free-form Fortran without algorithmic changes. The full program, with every later addition, is listed in the Anex.
 
 \subsection{Results}
 A run of $N_{\text{conf}} = 10000$ steps was performed for $N = 500$ argon atoms interacting through a Lennard-Jones potential truncated at $r_c = 2.5\sigma$, with $\Delta t = 0.01\text{ ps}$. Positions, velocities and energies are stored in Lennard-Jones reduced units. Figure~\ref{fig:ex1} shows the instantaneous total energy $E_{\text{tot}} = E_{\text{kin}} + E_{\text{pot}}$ (without the long-range tail) and the kinetic temperature $T$ along the trajectory.
 
 \begin{figure}[H]
+  \enlargethispage{2\baselineskip}
   \centering
-  \includegraphics[width=0.9\linewidth]{../leapfrog_step1/md_results_plot.png}
+  \includegraphics[width=0.62\linewidth]{../leapfrog_step1/md_results_plot.png}
   \caption{Time evolution of the Lennard-Jones NVE liquid over $t \in [0, 46.4]$ (reduced units). Top: total truncated energy $E_{\text{tot}} = E_{\text{kin}} + E_{\text{pot}}$. Bottom: kinetic temperature $T = 2E_{\text{kin}}/(3N-3)$.}
   \label{fig:ex1}
 \end{figure}
@@ -195,44 +196,52 @@ A run of $N_{\text{conf}} = 10000$ steps was performed for $N = 500$ argon atoms
 \end{itemize}
 
 \subsection{Code}
-\lstinputlisting[style=fortranstyle,caption={Leap-frog MD of a Lennard-Jones liquid with RDF histogram, virial pressure and long-range tail corrections.},label={lst:ex2}]{../leapfrog_step2/leapfroglj.f90}
+Only the lines added for the radial distribution function, the virial pressure and the long-range tails are shown here. A few lines of the supplied program are kept before and after each insertion so that the change sits in context. The full program is listed in the Anex.
+
+\lstinputlisting[style=fortranstyle,firstline=8,lastline=14,firstnumber=8,caption={Histogram storage. \texttt{nid} is real because a name starting with \texttt{n} would be an integer under implicit typing.},label={lst:ex2-decl}]{../leapfrog_step2/leapfroglj.f90}
+
+\lstinputlisting[style=fortranstyle,firstline=39,lastline=42,firstnumber=39,caption={Extra output file for the instantaneous energy and pressure contributions. The energy and temperature files are those of the supplied program.},label={lst:ex2-files}]{../leapfrog_step2/leapfroglj.f90}
+
+\lstinputlisting[style=fortranstyle,firstline=48,lastline=87,firstnumber=48,caption={Tail corrections, RDF and pressure accumulators, and their update on every configuration. The calls to \texttt{forces} and \texttt{velpos} and the writes of $E_{\text{tot}}$ and $T$ belong to the supplied loop.},label={lst:ex2-loop}]{../leapfrog_step2/leapfroglj.f90}
+
+\lstinputlisting[style=fortranstyle,firstline=88,lastline=132,firstnumber=88,caption={Run averages of the energy and pressure contributions, and normalisation of $g(r)$. The configuration is then saved by the supplied closing block.},label={lst:ex2-averages}]{../leapfrog_step2/leapfroglj.f90}
+
+\lstinputlisting[style=fortranstyle,firstline=173,lastline=194,firstnumber=173,caption={Pair virial summed inside \texttt{forces}. The zeroing of the accelerations is unchanged.},label={lst:ex2-forces}]{../leapfrog_step2/leapfroglj.f90}
+
+\lstinputlisting[style=fortranstyle,firstline=202,lastline=210,firstnumber=202,caption={Extra arguments of \texttt{lj}: the pair virial and the RDF histogram.},label={lst:ex2-lj-args}]{../leapfrog_step2/leapfroglj.f90}
+
+\lstinputlisting[style=fortranstyle,firstline=226,lastline=239,firstnumber=226,caption={Virial of one pair inside the cutoff, and the $g(r)$ shell counted up to $L/2$. The force update above it is the supplied Lennard-Jones force.},label={lst:ex2-lj-hist}]{../leapfrog_step2/leapfroglj.f90}
 
 \subsection{Results}
 The same $10000$-step NVE trajectory ($N = 500$, $\rho^* = 0.835$, $r_c = 2.5\sigma$) was used to accumulate $g(r)$ and the kinetic, virial and tail contributions to the energy and the pressure, all in reduced units.
 
-Figure~\ref{fig:ex2_rdf} shows the radial distribution function up to $L^*/2 = 4.21$. Figure~\ref{fig:ex2_energy} displays the instantaneous kinetic, truncated-potential, tail and total energies, and Figure~\ref{fig:ex2_pressure} the corresponding pressure contributions (kinetic, configurational, and total), following the layout of the reference results. The run averages are listed below, and Figure~\ref{fig:ex2_conv} tracks the running means $\langle E_{\text{tot}}\rangle$ and $\langle P_{\text{tot}}\rangle$ as a function of the simulation length.
+Figure~\ref{fig:ex2_rdf} shows the radial distribution function up to $L^*/2 = 4.21$, and Figure~\ref{fig:ex2_pressure} the pressure contributions (kinetic, configurational, and total). The run averages are listed below, and Figure~\ref{fig:ex2_conv} tracks the running means $\langle E_{\text{tot}}\rangle$ and $\langle P_{\text{tot}}\rangle$ as a function of the simulation length.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.78\linewidth]{../leapfrog_step2/rdf_plot.png}
-  \caption{Radial distribution function $g(r)$ of the Lennard-Jones liquid ($N = 500$, $\rho^* = 0.835$, $T^* = 0.713$) accumulated over $10000$ steps with $1000$ spherical shells up to $r = L/2$. The dashed line marks the ideal-gas limit $g(r) = 1$.}
-  \label{fig:ex2_rdf}
+  \begin{minipage}[t]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{../leapfrog_step2/rdf_plot.png}
+    \caption{Radial distribution function $g(r)$ of the Lennard-Jones liquid ($N = 500$, $\rho^* = 0.835$, $T^* = 0.713$) accumulated over $10000$ steps with $1000$ spherical shells up to $r = L/2$. The dashed line marks the ideal-gas limit $g(r) = 1$.}
+    \label{fig:ex2_rdf}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{../leapfrog_step2/pressure_plot.png}
+    \caption{Pressure contributions in reduced units versus time. Kinetic $P_{\text{kin}} = 2E_{\text{kin}}/(3V)$, configurational (virial plus tail) $P_{\text{pot}}$, and total $P_{\text{tot}} = P_{\text{kin}} + P_{\text{pot}}$.}
+    \label{fig:ex2_pressure}
+  \end{minipage}
 \end{figure}
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.78\linewidth]{../leapfrog_step2/energy_plot.png}
-  \caption{Energy contributions in reduced units versus time. Kinetic $E_{\text{kin}}$, truncated pair potential $E_{\text{pot}}$, constant long-range tail $E_{\text{tail}}$, and thermodynamic total $E_{\text{tot}} = E_{\text{kin}} + E_{\text{pot}} + E_{\text{tail}}$.}
-  \label{fig:ex2_energy}
-\end{figure}
+\lstinputlisting[style=datastyle,caption={Run averages of the energy and pressure contributions in reduced units (\texttt{averages-leap.dat}).},aboveskip=0pt]{../leapfrog_step2/averages-leap.dat}
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.78\linewidth]{../leapfrog_step2/pressure_plot.png}
-  \caption{Pressure contributions in reduced units versus time, matching the reference layout. Kinetic $P_{\text{kin}} = 2E_{\text{kin}}/(3V)$, configurational (virial plus tail) $P_{\text{pot}}$, and total $P_{\text{tot}} = P_{\text{kin}} + P_{\text{pot}}$.}
-  \label{fig:ex2_pressure}
-\end{figure}
-
-\lstinputlisting[style=datastyle,caption={Run averages of the energy and pressure contributions in reduced units (\texttt{averages-leap.dat}).}]{../leapfrog_step2/averages-leap.dat}
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.78\linewidth]{../leapfrog_step2/convergence_plot.png}
+  \includegraphics[width=0.72\linewidth]{../leapfrog_step2/convergence_plot.png}
   \caption{Convergence of the thermodynamic totals with simulation length. Top: running mean of $E_{\text{tot}}$. Bottom: running mean of $P_{\text{tot}}$. Both averages are taken from $t = 0$ up to the current time.}
   \label{fig:ex2_conv}
 \end{figure}
 
-\clearpage
 \subsection{Discussion \& Notes}
 \begin{itemize}
   \item \textbf{Method and setup:}
@@ -290,40 +299,58 @@ Figure~\ref{fig:ex2_rdf} shows the radial distribution function up to $L^*/2 = 4
 \end{itemize}
 
 \subsection{Code}
-\lstinputlisting[style=fortranstyle,caption={Leap-frog MD with multiple-origin VACF and MSD, Simpson 3/8 spectral density of the VACF, and Einstein self-diffusion coefficient.},label={lst:ex3}]{../leapfrog_step3/leapfroglj.f90}
+Only the lines added in this step are shown: the velocity autocorrelation, the mean square displacement, the spectral density and the self-diffusion coefficient. Changes from Exercises~1 and~2 are not repeated. A few lines of the original leap-frog program are kept where they show the insertion point. The full program is listed in the Anex.
+
+\lstinputlisting[style=fortranstyle,firstline=11,lastline=13,firstnumber=11,caption={Unwrapped-trajectory arrays \texttt{runw} and \texttt{rold}, added beside the position and velocity arrays of the supplied program.},label={lst:ex3-decl}]{../leapfrog_step3/leapfroglj.f90}
+
+\lstinputlisting[style=fortranstyle,firstline=16,lastline=21,firstnumber=16,caption={Storage for the VACF, the MSD, the spectral density and the multiple-origin buffers.},label={lst:ex3-buffers}]{../leapfrog_step3/leapfroglj.f90}
+
+\lstinputlisting[style=fortranstyle,firstline=51,lastline=58,firstnumber=51,caption={Unwrapped coordinates, copied from the wrapped positions once the supplied routine \texttt{reduced} has changed to Lennard-Jones units.},label={lst:ex3-runw}]{../leapfrog_step3/leapfroglj.f90}
+
+\lstinputlisting[style=fortranstyle,firstline=74,lastline=90,firstnumber=74,caption={Correlation window and circular buffer of time origins.},label={lst:ex3-window}]{../leapfrog_step3/leapfroglj.f90}
+
+\lstinputlisting[style=fortranstyle,firstline=100,lastline=110,firstnumber=100,caption={Each leap-frog step is unfolded before \texttt{sample} accumulates $C(t)$ and $r^{2}(t)$. The call to \texttt{velpos} is the supplied update.},label={lst:ex3-unfold}]{../leapfrog_step3/leapfroglj.f90}
+
+\lstinputlisting[style=fortranstyle,firstline=169,lastline=188,firstnumber=169,caption={Normalisation and output of the VACF and the MSD.},label={lst:ex3-vacf}]{../leapfrog_step3/leapfroglj.f90}
+
+\lstinputlisting[style=fortranstyle,firstline=190,lastline=238,firstnumber=190,caption={Simpson $3/8$ spectral density of $C(t)$, the instantaneous Einstein estimator, and the linear fit of $r^{2}(t)$ compared with the Green--Kubo integral.},label={lst:ex3-diff}]{../leapfrog_step3/leapfroglj.f90}
+
+\lstinputlisting[style=fortranstyle,firstline=249,lastline=309,firstnumber=249,caption={Internal subroutine \texttt{sample}: multiple time origins for the VACF and the MSD. Positions stored in \texttt{x0} are the unwrapped coordinates.},label={lst:ex3-sample}]{../leapfrog_step3/leapfroglj.f90}
+
+\lstinputlisting[style=fortranstyle,firstline=311,lastline=349,firstnumber=311,caption={Internal subroutine \texttt{spectrum}: composite Simpson $3/8$ cosine transform of the VACF, for $\omega = 0,1,\ldots,100$.},label={lst:ex3-spectrum}]{../leapfrog_step3/leapfroglj.f90}
 
 \subsection{Results}
-On the same $10000$-step trajectory, $C(t)$ and $r^{2}(t)$ were accumulated with multiple time origins over a correlation window of $t^* \approx 5$ ($1074$ lags, a multiple of $6$ so that Simpson's $3/8$ rule has complete panels). Figure~\ref{fig:ex3_vacf} shows the VACF, Figure~\ref{fig:ex3_msd} the MSD together with the linear Einstein fit, Figure~\ref{fig:ex3_sdw} the cosine transform $S(\omega)$, and Figure~\ref{fig:ex3_D} the instantaneous $D(t) = r^{2}(t)/(6t)$ compared with the fitted $D$.
+On the same $10000$-step trajectory, $C(t)$ and $r^{2}(t)$ were accumulated with multiple time origins over a correlation window of $t^* \approx 5$ ($1074$ lags, a multiple of $6$ so that Simpson's $3/8$ rule has complete panels). Figure~\ref{fig:ex3_vacf} shows the VACF, Figure~\ref{fig:ex3_msd} the MSD together with the linear Einstein fit, Figure~\ref{fig:ex3_sdw} the cosine transform $S(\omega)$, and Figure~\ref{fig:ex3_D} the instantaneous estimator $D(t) = r^{2}(t)/(6t)$.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.78\linewidth]{../leapfrog_step3/vacf_plot.png}
-  \caption{Velocity autocorrelation $C(t) = \langle\vec{v}(t)\cdot\vec{v}(0)\rangle$ in reduced units, averaged over particles and time origins. The VACF starts at $C(0) = 2.14$, becomes negative at $t^* = 0.14$ (cage backscattering) and has decayed by $t^* \approx 0.65$.}
-  \label{fig:ex3_vacf}
+  \begin{minipage}[t]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{../leapfrog_step3/vacf_plot.png}
+    \caption{Velocity autocorrelation $C(t) = \langle\vec{v}(t)\cdot\vec{v}(0)\rangle$ in reduced units, averaged over particles and time origins. The VACF starts at $C(0) = 2.14$, becomes negative at $t^* = 0.14$ (cage backscattering) and has decayed by $t^* \approx 0.65$.}
+    \label{fig:ex3_vacf}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{../leapfrog_step3/msd_plot.png}
+    \caption{Mean square displacement $r^{2}(t)$ in reduced units. The dashed line is the least-squares fit $r^{2}(t) = 6Dt + b$ over the diffusive window $t^* \in [1.24, 4.98]$, giving $D^* = 0.0331$.}
+    \label{fig:ex3_msd}
+  \end{minipage}
+  \vspace{0.8em}
+  \begin{minipage}[t]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{../leapfrog_step3/sdw_plot.png}
+    \caption{Spectral density $S(\omega) = \int C(t)\cos(\omega t)\,dt$ of the VACF, obtained with the composite Simpson $3/8$ rule for $\omega = 0,1,\ldots,100$ (reduced units). The maximum is $S = 0.158$ at $\omega = 8$.}
+    \label{fig:ex3_sdw}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{../leapfrog_step3/diffusion_plot.png}
+    \caption{Instantaneous Einstein estimator $D(t) = r^{2}(t)/(6t)$ in reduced units. The shaded band is the linear-fit window; the dashed line is the fitted self-diffusion coefficient $D^* = 0.0331$.}
+    \label{fig:ex3_D}
+  \end{minipage}
 \end{figure}
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.78\linewidth]{../leapfrog_step3/msd_plot.png}
-  \caption{Mean square displacement $r^{2}(t)$ in reduced units. The dashed line is the least-squares fit $r^{2}(t) = 6Dt + b$ over the diffusive window $t^* \in [1.24, 4.98]$, giving $D^* = 0.0331$.}
-  \label{fig:ex3_msd}
-\end{figure}
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.78\linewidth]{../leapfrog_step3/sdw_plot.png}
-  \caption{Spectral density $S(\omega) = \int C(t)\cos(\omega t)\,dt$ of the VACF, obtained with the composite Simpson $3/8$ rule for $\omega = 0,1,\ldots,100$ (reduced units). The maximum is $S = 0.158$ at $\omega = 8$.}
-  \label{fig:ex3_sdw}
-\end{figure}
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.78\linewidth]{../leapfrog_step3/diffusion_plot.png}
-  \caption{Instantaneous Einstein estimator $D(t) = r^{2}(t)/(6t)$ (reduced units). The shaded region is the linear-fit window; the dashed line is the fitted self-diffusion coefficient $D^* = 0.0331$.}
-  \label{fig:ex3_D}
-\end{figure}
-
-\clearpage
 \subsection{Discussion \& Notes}
 \begin{itemize}
   \item \textbf{Method and setup:}
@@ -347,4 +374,17 @@ On the same $10000$-step trajectory, $C(t)$ and $r^{2}(t)$ were accumulated with
   \item \textbf{Conclusion:}
   A correlation window of $5$ reduced time units is sufficient: the VACF has died, the MSD is linear, and Einstein and Green--Kubo agree to about one percent. The negative VACF lobe and $D^* = 0.033$ confirm that the simulated state point is a dense Lennard-Jones liquid, consistent with the RDF of Exercise~2 and with the reference figures.
 \end{itemize}
+
+\clearpage
+\thispagestyle{empty}
+\null
+\vspace*{\fill}
+\begin{center}
+{\fontsize{48}{58}\selectfont\bfseries Anex}
+\end{center}
+\vspace*{\fill}
+\clearpage
+The program listed here is the full source used throughout the practice. It is the leap-frog integrator supplied for Exercise~1, together with the radial distribution function, the virial pressure and the tail corrections added in Exercise~2, and the velocity autocorrelation, mean square displacement, spectral density and self-diffusion coefficient added in Exercise~3. Each exercise section quotes only the lines introduced in that step.
+
+\lstinputlisting[style=fortranstyle,caption={Full leap-frog program used for the three exercises.},label={lst:ex3}]{../leapfrog_step3/leapfroglj.f90}
 \end{document}

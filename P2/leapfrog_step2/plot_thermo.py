@@ -4,13 +4,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 here = Path(__file__).resolve().parent
-# t, ekin, epot, etail, etot, pkin, pvir, ptail, ptot
+# t, etot, pkin, pvir, ptail, ptot
 data = np.loadtxt(here / "thermo-leap.dat")
 t = data[:, 0]
-pkin = data[:, 5]
+pkin = data[:, 2]
 # Configurational pressure: virial plus the constant tail correction.
-ppot = data[:, 6] + data[:, 7]
-ptot = data[:, 8]
+ppot = data[:, 3] + data[:, 4]
+ptot = data[:, 5]
 
 fig, ax = plt.subplots(figsize=(8, 6))
 ax.plot(t, pkin, color="red", lw=0.7, label="kinetic")

@@ -4,11 +4,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 here = Path(__file__).resolve().parent
-# t, ekin, epot, etail, etot, pkin, pvir, ptail, ptot
+# t, etot, pkin, pvir, ptail, ptot
 data = np.loadtxt(here / "thermo-leap.dat")
 t = data[:, 0]
-etot = data[:, 4]
-ptot = data[:, 8]
+etot = data[:, 1]
+ptot = data[:, 5]
 n = np.arange(1, len(t) + 1)
 etot_run = np.cumsum(etot) / n
 ptot_run = np.cumsum(ptot) / n

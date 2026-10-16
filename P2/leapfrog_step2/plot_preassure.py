@@ -6,13 +6,13 @@ import numpy as np
 here = Path(__file__).resolve().parent
 
 # Columnas de thermo-leap.dat:
-# 0: t, 1: ekin, 2: epot, 3: etail, 4: etot, 5: pkin, 6: pvir, 7: ptail, 8: ptot
+# 0: t, 1: etot, 2: pkin, 3: pvir, 4: ptail, 5: ptot
 data = np.loadtxt(here / "thermo-leap.dat")
 t = data[:, 0]
-pkin = data[:, 5]
-pvir = data[:, 6]
-ptail = data[:, 7]
-ptot = data[:, 8]
+pkin = data[:, 2]
+pvir = data[:, 3]
+ptail = data[:, 4]
+ptot = data[:, 5]
 
 fig, ax = plt.subplots(figsize=(8, 6))
 
