@@ -13,16 +13,19 @@ n = np.arange(1, len(t) + 1)
 etot_run = np.cumsum(etot) / n
 ptot_run = np.cumsum(ptot) / n
 
-fig, axes = plt.subplots(2, 1, figsize=(8, 7), sharex=True)
-axes[0].plot(t, etot_run, color="#d62728", lw=1.2)
-axes[0].set_ylabel(r"$\langle E_{\mathrm{tot}}\rangle$ (reduced units)")
+# Small canvas: the three Exercise 2 plots sit side by side in the report.
+plt.rcParams.update({"font.size": 9})
+fig, axes = plt.subplots(2, 1, figsize=(3.4, 2.7), sharex=True)
+axes[0].plot(t, etot_run, color="#d62728", lw=1.0)
+axes[0].set_ylabel(r"$\langle E_{\mathrm{tot}}\rangle$")
 axes[0].grid(True, alpha=0.25)
 
-axes[1].plot(t, ptot_run, color="#1f77b4", lw=1.2)
+axes[1].plot(t, ptot_run, color="#1f77b4", lw=1.0)
 axes[1].set_xlabel(r"$t$ (reduced units)")
-axes[1].set_ylabel(r"$\langle P_{\mathrm{tot}}\rangle$ (reduced units)")
+axes[1].set_ylabel(r"$\langle P_{\mathrm{tot}}\rangle$")
+axes[1].set_xlim(0, t[-1])
 axes[1].grid(True, alpha=0.25)
 
-fig.tight_layout()
-fig.savefig(here / "convergence_plot.png", dpi=150)
+fig.tight_layout(h_pad=0.3)
+fig.savefig(here / "convergence_plot.png", dpi=250)
 plt.show()
