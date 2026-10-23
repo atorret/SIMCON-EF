@@ -150,7 +150,7 @@ Simulation of a simple Lennard-Jones fluid, such as liquid argon, with a hand-ma
 \subsection{Code}
 This step runs the leap-frog program supplied with the practice, transcribed to free-form Fortran without algorithmic changes; only the accumulation and printing of the averages was added. The run uses the parameters of the statement ($10000$ steps, $N = 500$). The full program, with every later addition, is listed in the Annex.
 
-\lstinputlisting[style=fortranstyle,firstline=53,lastline=81,firstnumber=53,caption={Main loop with the running sums of $T$ and $E_{	ext{tot}}$ (added) and the printed means and standard deviations.},label={lst:ex1-loop}]{../leapfrog_step1/leapfroglj.f90}
+\lstinputlisting[style=fortranstyle,firstline=53,lastline=81,firstnumber=53,caption={Main loop with the running sums of $T$ and $E_{\text{tot}}$ (added) and the printed means and standard deviations.},label={lst:ex1-loop}]{../leapfrog_step1/leapfroglj.f90}
 
 \subsection{Results}
 With $L^* = 8.427$ ($\rho^* = 0.835$) and $\Delta t^* = 4.637\times 10^{-3}$ ($\tau = 2.156\text{ ps}$), the $10000$ steps cover $t^* = 46.37$ ($100\text{ ps}$). Figure~\ref{fig:ex1} shows $T$ and $E_{\text{tot}} = E_{\text{kin}} + E_{\text{pot}}$.
@@ -244,10 +244,10 @@ Figure~\ref{fig:ex2} shows $g(r)$, the pressure contributions and the running me
 
 \subsection{Discussion \& Notes}
 \begin{itemize}
-  \item \textbf{RDF:} $g(r) = 0$ inside the repulsive core ($r \lesssim 0.93$) and then oscillates as in a dense liquid, matching the reference curve. The first peak is at $r = 1.089$ ($g = 3.00$), the first minimum at $r = 1.544$ ($g = 0.576$), and further peaks at $r = 2.079$ ($g = 1.28$) and $r = 2.985$ ($g = 1.11$). The oscillations die out and $g(L/2) = 0.993 \approx 1$: there is short-range order but no long-range order.
-  \item \textbf{Energy:} $E_{\text{kin}}$ and $E_{\text{pot}}$ each fluctuate by $\sigma \approx 13$, in anti-phase, so their sum keeps the $\sigma = 0.537$ of Exercise~1. $\langle E_{\text{tot}}\rangle/N = -4.98$ per particle, and the tail is $9\%$ of $E_{\text{tot}}$.
-  \item \textbf{Pressure:} $\langle P_{\text{kin}}\rangle = 0.5945 \approx \rho^* \langle T^*\rangle = 0.596$. The repulsive virial $0.100$ and the attractive tail $-0.746$ almost cancel it, so $P_{\text{tot}} = -0.052$ fluctuates around zero ($\sigma_P = 0.120$), as in the reference figure. Without the tail $P^*$ would be $+0.69$, so the tail correction is essential at $r_c = 2.5$.
-  \item \textbf{Convergence:} $\langle E_{\text{tot}}\rangle$ changes by only $0.2$ (less than $0.01\%$) once a few thousand steps have been averaged. $\langle P_{\text{tot}}\rangle$ converges more slowly: it is a small difference of large terms, and its instantaneous fluctuations are more than twice its mean. It settles after about $5000$ steps ($t^* \approx 23$) to within $\pm 0.006$. Block averaging the full run (10 blocks) gives statistical errors of $0.07$ on $E_{\text{tot}}$ and $0.007$ on $P_{\text{tot}}$, so $10000$ steps are enough for both.
+  \item \textbf{RDF:} $g(r) = 0$ inside the repulsive core ($r \lesssim 0.93$) and then oscillates as in a dense liquid. The first peak is at $r = 1.089$ ($g = 3.00$), the first minimum at $r = 1.544$ ($g = 0.576$), and further peaks at $r = 2.079$ ($g = 1.28$) and $r = 2.985$ ($g = 1.11$). The oscillations die out and $g(L/2) = 0.993 \approx 1$: there is short-range order but no long-range order.
+  \item \textbf{Energy:} $\langle E_{\text{tot}}\rangle/N = -4.98$ per particle, and the tail is $9\%$ of $E_{\text{tot}}$.
+  \item \textbf{Pressure:} $\langle P_{\text{kin}}\rangle = 0.5945 \approx \rho^* \langle T^*\rangle = 0.596$. The repulsive virial $0.100$ and the attractive tail $-0.746$ almost cancel it, so $P_{\text{tot}} = -0.052$ is close to zero. Without the tail $P^*$ would be $+0.69$, so the tail correction is essential at $r_c = 2.5$.
+  \item \textbf{Convergence:} $\langle E_{\text{tot}}\rangle$ changes by only $0.2$ (less than $0.01\%$) once a few thousand steps have been averaged. $\langle P_{\text{tot}}\rangle$ converges more slowly: it is a small difference of large terms. It settles after about $5000$ steps ($t^* \approx 23$) to within $\pm 0.006$.
 \end{itemize}
 
 \newpage
@@ -297,7 +297,7 @@ Only the lines added in this step are shown, with a few lines of the existing pr
 \lstinputlisting[style=fortranstyle,firstline=328,lastline=364,firstnumber=328,caption={Internal subroutine \texttt{spectrum}: composite Simpson $3/8$ cosine transform of the VACF.},label={lst:ex3-spectrum}]{../leapfrog_step3/leapfroglj.f90}
 
 \subsection{Results}
-On the same $10000$-step trajectory ($N = 500$, $\rho^* = 0.835$, $\langle T^*\rangle = 0.713$), $C(t)$ and $r^{2}(t)$ were averaged over particles and time origins in a window of $1074$ steps ($t^* \le 4.98$). Figure~\ref{fig:ex3} shows the VACF, the MSD with its Einstein fit, and the spectral density $S(\omega)$. The fit gives a slope of $0.1988$ and an intercept of $0.025$, so $D^* = 0.0331$, i.e.\ $D = D^*\sigma^2/\tau = 0.178\text{ \AA}^2\text{ ps}^{-1} = 1.78\times 10^{-5}\text{ cm}^2\text{ s}^{-1}$.
+On the same $10000$-step trajectory ($N = 500$, $\rho^* = 0.835$, $\langle T^*\rangle = 0.713$), $C(t)$ and $r^{2}(t)$ were averaged over particles and time origins in a window of $1074$ steps ($t^* \le 4.98$). Figure~\ref{fig:ex3} shows the VACF, the MSD with its Einstein fit, and the spectral density $S(\omega)$. The fit gives a slope of $0.1988$ and an intercept of $0.025$, so $D^* = 0.0331$.
 
 \begin{figure}[H]
   \centering
@@ -325,16 +325,12 @@ On the same $10000$-step trajectory ($N = 500$, $\rho^* = 0.835$, $\langle T^*\r
   \item \textbf{Method and setup:}
   Following the lecture SAMPLE scheme, a new time origin is stored every $5$ steps in a circular buffer. The MSD uses unwrapped positions: each leap-frog displacement is unfolded with the minimum image, so $r^{2}(t)$ is not folded back by the periodic box. The window $n_{\text{cor}} = 1074$ is a multiple of $6$, so Simpson's $3/8$ rule has complete panels, and it is long enough for $C(t)$ to vanish and for $r^{2}(t)$ to become linear. The integral~\eqref{eq:sdw} is evaluated on $t^* \le 1.24$ (first quarter of the window), beyond which $C(t)\approx 0$. Following~\eqref{eq:einstein}, $D$ is one sixth of the slope of $r^{2}(t)$ fitted over the last three quarters of the window, which discards the ballistic rise.
 
-  \item \textbf{Results vs expectations:}
+  \item \textbf{Results:}
   \begin{itemize}
-    \item \emph{VACF:} $C(0) = 2.138$ agrees with the equipartition value $\langle v^2\rangle = 3\langle T^*\rangle = 2.139$ ($m = 1$). $C(t)$ decays quickly, crosses zero at $t^* = 0.139$ and reaches a minimum $C = -0.256$ at $t^* = 0.195$. This negative lobe is the signature of a dense liquid: atoms rebound from the cage of first neighbours (the RDF peak at $r = 1.09$ in Exercise~2). Beyond $t^* \approx 0.64$, $\vert C\vert < 0.02$ and $C(t)$ only fluctuates around zero.
-    \item \emph{MSD:} $r^{2}(t)$ follows the ballistic law $\langle v^2\rangle t^2$ only for $t^* \lesssim 0.05$ ($r^2 = 0.0053$ against $0.0056$), bends as collisions set in, and is linear for $t^* \gtrsim 1$. It reaches $r^{2} = 1.016$ at $t^* = 4.98$, so each atom moves about one $\sigma$ in the window.
-    \item \emph{SDW:} $S(\omega)$ peaks at $\omega = 8$ ($S = 0.158$), the characteristic frequency of an atom rattling in its cage and the counterpart of the negative VACF lobe. It falls to $5.4\times 10^{-3}$ at $\omega = 40$ and $5\times 10^{-5}$ at $\omega = 100$, so no motion is faster than the collision time. $S(0) = 0.100$ is finite, as it must be for a fluid (a solid has $S(0) = 0$), and $S(0)/3 = 0.0334$ matches the Einstein $D^*$ to $1\%$.
-    \item \emph{Self-diffusion:} $D = 1.78\times 10^{-5}\text{ cm}^2\text{ s}^{-1}$ is of the order expected for simple liquids near their triple point.
-  \end{itemize}
-
-  \item \textbf{Conclusion:}
-  A window of $5$ reduced time units suffices: the VACF has died out and the MSD is linear. The cage-backscattering lobe of $C(t)$, the peak of $S(\omega)$ at $\omega = 8$ and $D^* = 0.033$ all describe a dense Lennard-Jones liquid, consistent with the RDF of Exercise~2.
+    \item \emph{VACF:} $C(0) = 2.138$ agrees with the equipartition value $\langle v^2\rangle = 3\langle T^*\rangle = 2.139$ ($m = 1$). $C(t)$ decays quickly, crosses zero at $t^* = 0.139$ and reaches a minimum $C = -0.256$ at $t^* = 0.195$. Beyond $t^* \approx 0.64$, $\vert C\vert < 0.02$ and $C(t)$ only fluctuates around zero.
+    \item \emph{MSD:} $r^{2}(t)$ follows the ballistic law $\langle v^2\rangle t^2$ only for $t^* \lesssim 0.05$ ($r^2 = 0.0053$ against $0.0056$), and is linear for $t^* \gtrsim 1$. It reaches $r^{2} = 1.016$ at $t^* = 4.98$.
+    \item \emph{SDW:} $S(\omega)$ peaks at $\omega = 8$ ($S = 0.158$). It falls to $5.4\times 10^{-3}$ at $\omega = 40$ and $5\times 10^{-5}$ at $\omega = 100$. $S(0) = 0.100$ is finite and $S(0)/3 = 0.0334$ matches the Einstein $D^*$ to $1\%$.
+      \end{itemize}
 \end{itemize}
 
 \clearpage
