@@ -148,7 +148,7 @@ Simulation of a simple Lennard-Jones fluid, such as liquid argon, with a hand-ma
 \end{itemize}
 
 \subsection{Code}
-This step runs the leap-frog program supplied with the practice, transcribed to free-form Fortran without algorithmic changes; only the accumulation and printing of the averages was added. The run uses the parameters of the statement ($10000$ steps, $N = 500$). The full program, with every later addition, is listed in the Anex.
+This step runs the leap-frog program supplied with the practice, transcribed to free-form Fortran without algorithmic changes; only the accumulation and printing of the averages was added. The run uses the parameters of the statement ($10000$ steps, $N = 500$). The full program, with every later addition, is listed in the Annex.
 
 \lstinputlisting[style=fortranstyle,firstline=53,lastline=81,firstnumber=53,caption={Main loop with the running sums of $T$ and $E_{	ext{tot}}$ (added) and the printed means and standard deviations.},label={lst:ex1-loop}]{../leapfrog_step1/leapfroglj.f90}
 
@@ -179,7 +179,7 @@ With $L^* = 8.427$ ($\rho^* = 0.835$) and $\Delta t^* = 4.637\times 10^{-3}$ ($\
 \end{itemize}
 
 \subsection{Code}
-Only the lines added for the radial distribution function, the virial pressure and the long-range tails are shown. The full program is listed in the Anex.
+Only the lines added for the radial distribution function, the virial pressure and the long-range tails are shown. The full program is listed in the Annex.
 
 \lstinputlisting[style=fortranstyle,firstline=9,lastline=14,firstnumber=9,caption={Histogram storage. \texttt{nid} is real because a name starting with \texttt{n} would be an integer under implicit typing.},label={lst:ex2-decl}]{../leapfrog_step2/leapfroglj.f90}
 
@@ -278,7 +278,7 @@ Figure~\ref{fig:ex2} shows $g(r)$, the pressure contributions and the running me
 \end{itemize}
 
 \subsection{Code}
-Only the lines added in this step are shown, with a few lines of the existing program kept where they mark the insertion point. The full program is listed in the Anex.
+Only the lines added in this step are shown, with a few lines of the existing program kept where they mark the insertion point. The full program is listed in the Annex.
 
 \lstinputlisting[style=fortranstyle,firstline=11,lastline=21,firstnumber=11,caption={Unwrapped-trajectory arrays \texttt{runw}, \texttt{rold}, and storage for the VACF, the MSD, the spectral density and the time-origin buffers.},label={lst:ex3-decl}]{../leapfrog_step3/leapfroglj.f90}
 
@@ -342,7 +342,7 @@ On the same $10000$-step trajectory ($N = 500$, $\rho^* = 0.835$, $\langle T^*\r
 \null
 \vspace*{\fill}
 \begin{center}
-{\fontsize{48}{58}\selectfont\bfseries Anex}
+{\fontsize{48}{58}\selectfont\bfseries Annex}
 \end{center}
 \vspace*{\fill}
 \clearpage
