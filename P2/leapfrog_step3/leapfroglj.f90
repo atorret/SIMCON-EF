@@ -7,21 +7,17 @@
 program leapfroglj
    implicit double precision(a-h,o-z)
    double precision mass, nid
- 
+
    ! 1. Defining dimensions
-   dimension r(3,1000), vinf(3,1000), accel(3,1000), runw(3,1000), rold(3,1000)
-   dimension c(0:10000), r2(0:10000)
+   dimension r(3,1000), vinf(3,1000), accel(3,1000), runw(3,1000)
    parameter (nhis = 1000)
    dimension g(nhis)
-   dimension t(0:10000), D(10000), c_spectrum(0:1000)
-   ! Multiple time origins for VACF and MSD (lecture SAMPLE algorithm).
-   ! init=0 initialize, init=1 accumulate a sample, init=2 normalize.
-   integer :: ncor, it0, ntmax, t0max, ntel, t0
+   ! VACF and MSD accumulated over multiple time origins (circular buffer)
    integer, allocatable :: time0(:), ntime(:)
-   double precision, allocatable :: vx0(:,:,:), x0(:,:,:), vacf(:), r2t(:)
- 
+   double precision, allocatable :: x0(:,:,:), v0(:,:,:), vacf(:), r2t(:)
+
    INCLUDE '../../chdir_to_code.inc'
- 
+
    ! 2. Reading data and computing related quantities
    open(1, file='../data/leap-lj.data', status='old')
    read(1,*) nconf
@@ -30,10 +26,10 @@ program leapfroglj
    read(1,*) sigma, epsil
    read(1,*) deltat
    close(1)
- 
+
    nf = 3*natoms - 3  ! number of degrees of freedom
    rc = 2.5d0         ! cutoff radius in units of sigma
- 
+
    ! 3. Reading initial configuration (positions, velocities) in A and A/ps
    open(2, file='../data/leap-conf.data', status='old')
    do is = 1, natoms
@@ -42,12 +38,12 @@ program leapfroglj
    end do
    read(2,*) boxlength
    close(2)
- 
+
    ! Opening files to write results
    open(3, file='energy-leap.dat', status='unknown')
    open(4, file='temp-leap.dat', status='unknown')
    open(8, file='thermo-leap.dat', status='unknown')
- 
+
    ! 4. Change to reduced units
    call reduced(natoms, r, vinf, boxlength, deltat, epsil, sigma, &
                 mass, uvel)
@@ -75,44 +71,49 @@ program leapfroglj
    sume = 0.d0
    sume2 = 0.d0
 
-   ! Correlation window of about 5 reduced time units: the VACF has
-   ! decayed and the MSD is already linear. ncor is a multiple of 6 so
-   ! the Simpson 3/8 rule has a complete set of panels. A new time
-   ! origin is taken every it0 samples; t0max keeps every origin still
-   ! inside the window. ntmax is tmax in the lecture listing (1-based,
-   ! with C(0) stored in vacf(1)).
+   ! Window of ~5 time units (VACF decayed, MSD linear), ncor a multiple of 6.
+   ! A new time origin every it0 steps; n0max origins fit in the window.
    it0 = 5
-   ncor = nint(5.d0/deltat)
-   ncor = ncor - mod(ncor, 6)
-   if (ncor < 6) ncor = 6
-   if (ncor > nconf) ncor = nconf - mod(nconf, 6)
-   ntmax = ncor + 2
-   t0max = ncor/it0 + 3
-   allocate(time0(t0max), ntime(ntmax))
-   allocate(vx0(3, natoms, t0max), x0(3, natoms, t0max))
-   allocate(vacf(ntmax), r2t(ntmax))
-   call sample(0)
- 
+   ncor = 6*(min(nint(5.d0/deltat), nconf)/6)
+   n0max = ncor/it0 + 1
+   allocate(time0(n0max), x0(3,natoms,n0max), v0(3,natoms,n0max))
+   allocate(ntime(0:ncor), vacf(0:ncor), r2t(0:ncor))
+   ntime = 0
+   vacf = 0.d0
+   r2t = 0.d0
+   n0 = 0
+
    write(8,'(a)') '# t etot pkin pvir ptail ptot'
- 
+
    print *, 'Iniciando simulacion MD (', nconf, ' pasos)...'
    do i = 1, nconf
       if (mod(i, 1000) == 0) then
          print *, '  -> Completado paso ', i, ' de ', nconf
       end if
       call forces(natoms, r, boxlength, accel, rc, epot, vir, nhis, g, delg)
-      rold = r
       call velpos(natoms, vinf, accel, deltat, r, nf, ecin, temp, boxlength)
 
-      ! Unfold this step (SAMPLE does not apply periodic wrapping to r2t).
-      do j = 1, natoms
-         do l = 1, 3
-            dr = r(l,j) - rold(l,j)
-            runw(l,j) = runw(l,j) + dr - boxlength*dnint(dr/boxlength)
-         end do
+      ! Leap-frog displacement is vinf*deltat; added without PBC.
+      runw(:,1:natoms) = runw(:,1:natoms) + vinf(:,1:natoms)*deltat
+
+      ! Store a new time origin, overwriting the oldest one.
+      if (mod(i, it0) == 0) then
+         n0 = n0 + 1
+         k = mod(n0-1, n0max) + 1
+         time0(k) = i
+         x0(:,:,k) = runw(:,1:natoms)
+         v0(:,:,k) = vinf(:,1:natoms)
+      end if
+      ! Accumulate v(t).v(0) and [r(t)-r(0)]^2 for every stored origin.
+      do k = 1, min(n0, n0max)
+         it = i - time0(k)
+         if (it <= ncor) then
+            ntime(it) = ntime(it) + 1
+            vacf(it) = vacf(it) + sum(vinf(:,1:natoms)*v0(:,:,k))
+            r2t(it) = r2t(it) + sum((runw(:,1:natoms) - x0(:,:,k))**2)
+         end if
       end do
-      call sample(1)
-      
+
       ! Conserved NVE energy (no tail). Thermodynamic totals include it.
       etot = ecin + epot
       etot_corr = etot + etail
@@ -150,7 +151,7 @@ program leapfroglj
    pkin_avg = pkin_sum/dfloat(nconf)
    pvir_avg = pvir_sum/dfloat(nconf)
    ptot_avg = pkin_avg + pvir_avg + ptail
- 
+
    open(9, file='averages-leap.dat', status='unknown')
    write(9,*) 'nconf', nconf
    write(9,*) 'ekin', ekin_avg
@@ -171,7 +172,7 @@ program leapfroglj
    print *, '  Pvir  =', pvir_avg
    print *, '  Ptail =', ptail
    print *, '  Ptot  =', ptot_avg
- 
+
    ! 6. Radial distribution function in reduced units.
    open(15, file='g-leap.dat', status='unknown')
    do j = 1, nhis
@@ -183,78 +184,70 @@ program leapfroglj
    end do
    close(15)
 
-   ! 7. Normalize VACF and MSD (SAMPLE init=2) and copy to 0-based arrays.
-   call sample(2)
-   do i = 0, ncor
-      c(i) = vacf(i+1)
-      r2(i) = r2t(i+1)
-      t(i) = i*deltat
-   end do
-   print *, 'VACF and MSD averaged over time origins'
-   print *, '  origins at t = 0     =', ntime(1)
-   print *, '  origins at t = tmax  =', ntime(ncor+1)
-   print *, '  C(0) =', c(0)
-
+   ! 7. VACF and MSD averaged over atoms and time origins.
+   vacf = vacf/(dfloat(natoms)*ntime)
+   r2t = r2t/(dfloat(natoms)*ntime)
    open(16, file='c-leap.dat', status='unknown')
    open(17, file='r2-leap.dat', status='unknown')
-   do i = 0, ncor
-      write(16,*) t(i), c(i)
-      write(17,*) t(i), r2(i)
+   open(19, file='D-leap.dat', status='unknown')
+   do it = 0, ncor
+      write(16,*) it*deltat, vacf(it)
+      write(17,*) it*deltat, r2t(it)
+      if (it > 0) write(19,*) it*deltat, r2t(it)/(6.d0*it*deltat)
    end do
    close(16)
    close(17)
+   close(19)
+   print *, '  C(0) =', vacf(0)
 
-   ! 8. Spectral density of the averaged VACF, Simpson 3/8 rule.
-   !    Frequencies w = 0, 1, ..., 100. Only those are written: the
-   !    previous loop stopped at 100 and the rest of the file was unset.
-   call spectrum(c(0:ncor), t(0:ncor), c_spectrum)
+   ! 8. Spectral density S(w) = integral C(t) cos(w t) dt, w = 0, ..., 100.
+   !    Composite Simpson 3/8 rule on the first quarter of the window
+   !    (C(t) ~ 0 beyond), with a multiple of 3 intervals.
+   nsdw = 3*(ncor/12)
    open(18, file='c_spectrum-leap.dat', status='unknown')
-   do i = 0, 100
-      write(18,*) dfloat(i), c_spectrum(i)
+   do iw = 0, 100
+      s = 0.d0
+      do it = 0, nsdw
+         if (it == 0 .or. it == nsdw) then
+            wgt = 1.d0
+         else if (mod(it, 3) == 0) then
+            wgt = 2.d0
+         else
+            wgt = 3.d0
+         end if
+         s = s + wgt*vacf(it)*dcos(iw*it*deltat)
+      end do
+      write(18,*) dfloat(iw), 3.d0*deltat/8.d0*s
    end do
    close(18)
 
-   ! 9. Instantaneous diffusion coefficient from the mean square displacement
-   open(19, file='D-leap.dat', status='unknown')
-   do i = 1, ncor
-      D(i) = r2(i)/(6.d0*t(i))
-      write(19,*) t(i), D(i)
-   end do
-   close(19)
-
-   ! 10. Least-squares linear fit r2(t) = 6*D*t + b over the diffusive regime.
-   !     The first quarter of the window (ballistic regime) is discarded.
-   !     yint is used instead of "intercept": implicit typing would make it integer.
+   ! 9. Einstein: least-squares fit r2(t) = 6*D*t + b over the diffusive
+   !    regime (the first quarter of the window, ballistic, is discarded).
+   !    yint is used instead of "intercept": implicit typing would make it integer.
    ifit = ncor/4
    npts = ncor - ifit + 1
    sx = 0.d0
    sy = 0.d0
    sxx = 0.d0
    sxy = 0.d0
-   do i = ifit, ncor
-      sx = sx + t(i)
-      sy = sy + r2(i)
-      sxx = sxx + t(i)*t(i)
-      sxy = sxy + t(i)*r2(i)
+   do it = ifit, ncor
+      tt = it*deltat
+      sx = sx + tt
+      sy = sy + r2t(it)
+      sxx = sxx + tt*tt
+      sxy = sxy + tt*r2t(it)
    end do
    slope = (dfloat(npts)*sxy - sx*sy)/(dfloat(npts)*sxx - sx*sx)
    yint = (sy - slope*sx)/dfloat(npts)
    d_einstein = slope/6.d0
-   tmin = t(ifit)
-   tmax = t(ncor)
-
-   ! Green-Kubo: D = (1/3) * integral of C(t) from 0 to the correlation window.
-   d_gk = deltat*(sum(c(0:ncor)) - 0.5d0*c(0) - 0.5d0*c(ncor))/3.d0
 
    open(20, file='diffusion-leap.dat', status='unknown')
-   write(20,'(a)') '# D_einstein slope intercept tmin tmax D_greenkubo'
-   write(20,*) d_einstein, slope, yint, tmin, tmax, d_gk
+   write(20,'(a)') '# D_einstein slope intercept tmin tmax'
+   write(20,*) d_einstein, slope, yint, ifit*deltat, ncor*deltat
    close(20)
-   print *, 'Diffusion coefficient (reduced units)'
-   print *, '  D (Einstein fit) =', d_einstein
-   print *, '  D (Green-Kubo)   =', d_gk
- 
-   ! 7. Saving last configuration in A and A/ps
+   print *, '  D (Einstein fit, reduced units) =', d_einstein
+
+   ! 10. Saving last configuration in A and A/ps
    open(11, file='newconf.data', status='unknown')
    do is = 1, natoms
       write(11,*) (r(l,is)*sigma, l=1,3)
@@ -262,107 +255,8 @@ program leapfroglj
    end do
    write(11,*) boxlength*sigma
    close(11)
- 
+
    stop
-
- contains
-
- !*********************************************************
- !     SAMPLE: VACF and MSD with multiple time origins
- !     init=0 initialize counters
- !     init=1 accumulate a sample of data
- !     init=2 average the results
- !     Positions in x0 / runw are unwrapped (PBC not assumed).
- !*********************************************************
-
- subroutine sample(init)
-   implicit none
-   integer, intent(in) :: init
-   integer :: i, j, l, tt0, torg, delt
-   double precision :: dx
-
-   if (init == 0) then
-      ntel = 0
-      t0 = 0
-      do i = 1, ntmax
-         ntime(i) = 0
-         vacf(i) = 0.d0
-         r2t(i) = 0.d0
-      end do
-   else if (init == 1) then
-      ntel = ntel + 1
-      if (mod(ntel, it0) == 0) then
-         t0 = t0 + 1
-         tt0 = mod(t0-1, t0max) + 1
-         time0(tt0) = ntel
-         do j = 1, natoms
-            do l = 1, 3
-               x0(l,j,tt0) = runw(l,j)
-               vx0(l,j,tt0) = vinf(l,j)
-            end do
-         end do
-      end if
-      do torg = 1, min(t0, t0max)
-         delt = ntel - time0(torg) + 1
-         if (delt < ntmax) then
-            ntime(delt) = ntime(delt) + 1
-            do j = 1, natoms
-               do l = 1, 3
-                  vacf(delt) = vacf(delt) + vinf(l,j)*vx0(l,j,torg)
-                  dx = runw(l,j) - x0(l,j,torg)
-                  r2t(delt) = r2t(delt) + dx*dx
-               end do
-            end do
-         end if
-      end do
-   else if (init == 2) then
-      do i = 1, ntmax
-         if (ntime(i) > 0) then
-            vacf(i) = vacf(i)/(dfloat(natoms)*dfloat(ntime(i)))
-            r2t(i) = r2t(i)/(dfloat(natoms)*dfloat(ntime(i)))
-         end if
-      end do
-   end if
- end subroutine sample
-
- !*********************************************************
- !     spectral density, composite Simpson 3/8 rule
- !     S(w) = integral C(t) cos(w t) dt, w = 0, 1, ..., 100
- !*********************************************************
-
- subroutine spectrum(C, t, result)
-   implicit none
-   double precision, dimension(:), intent(in) :: C, t
-   double precision, dimension(0:), intent(out) :: result
-   integer :: i, w, n, panel
-   double precision :: h, s
-   double precision, allocatable :: f(:)
-
-   n = int(0.25*size(t))
-   h = t(2) - t(1)
-   allocate(f(n))
-   result = 0.d0
-
-   do w = 0, 100
-      do i = 1, n
-         f(i) = C(i)*cos(dble(w)*t(i))
-      end do
-
-      ! Composite Simpson 3/8: panels come in groups of three.
-      s = f(1) + f(n)
-      do i = 2, n - 1
-         if (mod(i - 1, 3) == 0) then
-            s = s + 2.d0*f(i)
-         else
-            s = s + 3.d0*f(i)
-         end if
-      end do
-      result(w) = 3.d0*h/8.d0*s
-   end do
-
-   deallocate(f)
- end subroutine spectrum
-
  end program leapfroglj
  
  !*********************************************************

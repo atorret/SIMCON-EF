@@ -8,7 +8,7 @@ t, vacf = np.loadtxt(here / "c-leap.dat", unpack=True)
 t_msd, msd = np.loadtxt(here / "r2-leap.dat", unpack=True)
 omega, sdw = np.loadtxt(here / "c_spectrum-leap.dat", unpack=True)
 t_d, dinst = np.loadtxt(here / "D-leap.dat", unpack=True)
-d_einstein, slope, intercept, tmin, tmax, d_gk = np.loadtxt(
+d_einstein, slope, intercept, tmin, tmax = np.loadtxt(
     here / "diffusion-leap.dat"
 )
 

@@ -280,24 +280,20 @@ Figure~\ref{fig:ex2} shows $g(r)$, the pressure contributions and the running me
 \subsection{Code}
 Only the lines added in this step are shown, with a few lines of the existing program kept where they mark the insertion point. The full program is listed in the Annex.
 
-\lstinputlisting[style=fortranstyle,firstline=11,lastline=21,firstnumber=11,caption={Unwrapped-trajectory arrays \texttt{runw}, \texttt{rold}, and storage for the VACF, the MSD, the spectral density and the time-origin buffers.},label={lst:ex3-decl}]{../leapfrog_step3/leapfroglj.f90}
+\lstinputlisting[style=fortranstyle,firstline=11,lastline=17,firstnumber=11,caption={Unwrapped positions \texttt{runw} and storage for the time origins, the VACF and the MSD.},label={lst:ex3-decl}]{../leapfrog_step3/leapfroglj.f90}
 
-\lstinputlisting[style=fortranstyle,firstline=51,lastline=56,firstnumber=51,caption={Unwrapped coordinates, initialised once the positions are in reduced units.},label={lst:ex3-runw}]{../leapfrog_step3/leapfroglj.f90}
+\lstinputlisting[style=fortranstyle,firstline=51,lastline=52,firstnumber=51,caption={Unwrapped coordinates, initialised once the positions are in reduced units.},label={lst:ex3-runw}]{../leapfrog_step3/leapfroglj.f90}
 
-\lstinputlisting[style=fortranstyle,firstline=78,lastline=94,firstnumber=78,caption={Correlation window and circular buffer of time origins.},label={lst:ex3-window}]{../leapfrog_step3/leapfroglj.f90}
+\lstinputlisting[style=fortranstyle,firstline=70,lastline=80,firstnumber=70,caption={Correlation window and circular buffer of time origins.},label={lst:ex3-window}]{../leapfrog_step3/leapfroglj.f90}
 
-\lstinputlisting[style=fortranstyle,firstline=103,lastline=114,firstnumber=103,caption={Each leap-frog step is unfolded before \texttt{sample} accumulates $C(t)$ and $r^{2}(t)$.},label={lst:ex3-unfold}]{../leapfrog_step3/leapfroglj.f90}
+\lstinputlisting[style=fortranstyle,firstline=89,lastline=111,firstnumber=89,caption={After each leap-frog step the unwrapped positions are advanced, a time origin is stored every $5$ steps, and $C(t)$ and $r^{2}(t)$ are accumulated over all stored origins.},label={lst:ex3-sample}]{../leapfrog_step3/leapfroglj.f90}
 
-\lstinputlisting[style=fortranstyle,firstline=186,lastline=215,firstnumber=186,caption={Normalisation and output of the VACF and the MSD, and spectral density of $C(t)$.},label={lst:ex3-vacf}]{../leapfrog_step3/leapfroglj.f90}
+\lstinputlisting[style=fortranstyle,firstline=170,lastline=205,firstnumber=170,caption={Normalisation and output of the VACF and the MSD, and spectral density of $C(t)$ by the composite Simpson $3/8$ rule.},label={lst:ex3-vacf}]{../leapfrog_step3/leapfroglj.f90}
 
-\lstinputlisting[style=fortranstyle,firstline=225,lastline=244,firstnumber=225,caption={Einstein self-diffusion coefficient from a linear fit of $r^{2}(t)$ in the diffusive regime.},label={lst:ex3-diff}]{../leapfrog_step3/leapfroglj.f90}
-
-\lstinputlisting[style=fortranstyle,firstline=270,lastline=326,firstnumber=270,caption={Internal subroutine \texttt{sample}: VACF and MSD with multiple time origins.},label={lst:ex3-sample}]{../leapfrog_step3/leapfroglj.f90}
-
-\lstinputlisting[style=fortranstyle,firstline=328,lastline=364,firstnumber=328,caption={Internal subroutine \texttt{spectrum}: composite Simpson $3/8$ cosine transform of the VACF.},label={lst:ex3-spectrum}]{../leapfrog_step3/leapfroglj.f90}
+\lstinputlisting[style=fortranstyle,firstline=207,lastline=231,firstnumber=207,caption={Einstein self-diffusion coefficient from a linear fit of $r^{2}(t)$ in the diffusive regime.},label={lst:ex3-diff}]{../leapfrog_step3/leapfroglj.f90}
 
 \subsection{Results}
-On the same $10000$-step trajectory ($N = 500$, $\rho^* = 0.835$, $\langle T^*\rangle = 0.713$), $C(t)$ and $r^{2}(t)$ were averaged over particles and time origins in a window of $1074$ steps ($t^* \le 4.98$). Figure~\ref{fig:ex3} shows the VACF, the MSD with its Einstein fit, and the spectral density $S(\omega)$. The fit gives a slope of $0.1988$ and an intercept of $0.025$, so $D^* = 0.0331$.
+On the same $10000$-step run as in Exercise~2 ($N = 500$, $\rho^* = 0.835$, $\langle T^*\rangle = 0.713$), $C(t)$ and $r^{2}(t)$ were averaged over all atoms and over many starting times, in a window of $1074$ steps ($t^* \le 4.98$). Figure~\ref{fig:ex3} shows the VACF, the MSD with its straight-line (Einstein) fit, and the spectral density $S(\omega)$. The fit gives a slope of $0.1988$ and an intercept of $0.025$, so $D = 0.0331$.
 
 \begin{figure}[H]
   \centering
@@ -320,17 +316,26 @@ On the same $10000$-step trajectory ($N = 500$, $\rho^* = 0.835$, $\langle T^*\r
   \label{fig:ex3}
 \end{figure}
 
+\newpage
 \subsection{Discussion \& Notes}
 \begin{itemize}
-  \item \textbf{Method and setup:}
-  Following the lecture SAMPLE scheme, a new time origin is stored every $5$ steps in a circular buffer. The MSD uses unwrapped positions: each leap-frog displacement is unfolded with the minimum image, so $r^{2}(t)$ is not folded back by the periodic box. The window $n_{\text{cor}} = 1074$ is a multiple of $6$, so Simpson's $3/8$ rule has complete panels, and it is long enough for $C(t)$ to vanish and for $r^{2}(t)$ to become linear. The integral~\eqref{eq:sdw} is evaluated on $t^* \le 1.24$ (first quarter of the window), beyond which $C(t)\approx 0$. Following~\eqref{eq:einstein}, $D$ is one sixth of the slope of $r^{2}(t)$ fitted over the last three quarters of the window, which discards the ballistic rise.
-
-  \item \textbf{Results:}
+  \item \textbf{Results vs.\ expectations:}
   \begin{itemize}
-    \item \emph{VACF:} $C(0) = 2.138$ agrees with the equipartition value $\langle v^2\rangle = 3\langle T^*\rangle = 2.139$ ($m = 1$). $C(t)$ decays quickly, crosses zero at $t^* = 0.139$ and reaches a minimum $C = -0.256$ at $t^* = 0.195$. Beyond $t^* \approx 0.64$, $\vert C\vert < 0.02$ and $C(t)$ only fluctuates around zero.
-    \item \emph{MSD:} $r^{2}(t)$ follows the ballistic law $\langle v^2\rangle t^2$ only for $t^* \lesssim 0.05$ ($r^2 = 0.0053$ against $0.0056$), and is linear for $t^* \gtrsim 1$. It reaches $r^{2} = 1.016$ at $t^* = 4.98$.
-    \item \emph{SDW:} $S(\omega)$ peaks at $\omega = 8$ ($S = 0.158$). It falls to $5.4\times 10^{-3}$ at $\omega = 40$ and $5\times 10^{-5}$ at $\omega = 100$. $S(0) = 0.100$ is finite and $S(0)/3 = 0.0334$ matches the Einstein $D^*$ to $1\%$.
-      \end{itemize}
+    \item \emph{VACF:} The initial value $C(0) = 2.138$ shows excellent agreement with the equipartition theorem, which yields a mean-square velocity of $\langle v^2\rangle = 3\langle T^*\rangle = 2.139$ (for $m = 1$). The velocity autocorrelation function $C(t)$ decays rapidly thereafter, retaining only $21\%$ of its initial value by $t^* = 0.1$. It crosses zero at $t^* = 0.139$ ($0.30\text{ ps}$) and reaches a minimum of $C = -0.256$ at $t^* = 0.195$ ($0.42\text{ ps}$). This negative correlation indicates backscattering: on average, a particle reverses its velocity after colliding with the transient ``cage'' formed by its nearest neighbors (corresponding to the first radial distribution peak at $r = 1.09$ in Exercise~2). Such rebound behavior is characteristic of dense liquids, in contrast to dilute gases where $C(t)$ decays monotonically toward zero. By $t^* \approx 0.64$, $|C| < 0.02$, signifying that the atom has effectively lost memory of its initial velocity.
+
+    \item \emph{MSD:} At very short timescales ($t^* \lesssim 0.05$), atomic motion is purely ballistic, satisfying $\langle \Delta r^2(t)\rangle \approx \langle v^2\rangle t^2$. Beyond this regime, frequent collisions deflect the particle, initiating a crossover into the diffusive regime; for $t^* \gtrsim 1$, $\langle \Delta r^2(t)\rangle$ scales linearly with time, consistent with Brownian motion.
+
+    \item \emph{Direct Einstein ratio:} Calculating the instantaneous ratio $\langle \Delta r^2(t)\rangle / (6t)$ from~\eqref{eq:einstein} yields $0.0372$ at $t^* = 1$ and $0.0340$ at $t^* = 4.98$. Although this quotient asymptotically approaches the true diffusion coefficient, it systematically overestimates $D$ at finite times because it does not decouple the early-time ballistic displacement. A linear regression over the diffusive regime ($t^* \gtrsim 1$) resolves this issue: the fitted slope accurately extracts $D = 0.0331$, while the non-zero intercept absorbs the ballistic offset.
+
+    \item \emph{Spectral density $S(\omega)$:} The velocity power spectrum characterizes the distribution of vibrational modes, exhibiting a prominent peak at $\omega = 8$ ($S = 0.158$) and decaying sharply at high frequencies ($S = 5.4 \times 10^{-3}$ at $\omega = 40$; $5 \times 10^{-5}$ at $\omega = 100$). Crucially, the non-zero value at the origin, $S(0) = 0.100$, indicates macroscopic self-diffusion. As a result, we can relate the self-diffusion coeficient with the spectral density at 0 using the Green--Kubo formula:
+    \begin{equation}
+      D = \frac{1}{3}\int_0^\infty C(t)\,dt = \frac{S(0)}{3} = 0.0334 \approx 0.0331,
+    \end{equation}
+    demonstrating strong consistency with the MSD linear fit.
+  \end{itemize}
+
+  \item \textbf{Conclusion:}
+  The backscattering minimum in $C(t)$, the soft vibrational peak of $S(\omega)$ at $\omega = 8$, and the diffusion coefficient $D \approx 0.033$ consistently describe the structural and dynamical properties of a dense Lennard-Jones liquid, corroborating the radial distribution function obtained in Exercise~2.
 \end{itemize}
 
 \clearpage
