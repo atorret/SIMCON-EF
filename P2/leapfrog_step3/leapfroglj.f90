@@ -70,6 +70,10 @@ program leapfroglj
    epot_sum = 0.d0
    pkin_sum = 0.d0
    pvir_sum = 0.d0
+   sumt = 0.d0
+   sumt2 = 0.d0
+   sume = 0.d0
+   sume2 = 0.d0
 
    ! Correlation window of about 5 reduced time units: the VACF has
    ! decayed and the MSD is already linear. ncor is a multiple of 6 so
@@ -122,10 +126,23 @@ program leapfroglj
       write(3,*) i*deltat, etot
       write(4,*) i*deltat, temp
       write(8,*) i*deltat, etot_corr, pkin, pvir, ptail, ptot
+      sumt = sumt + temp
+      sumt2 = sumt2 + temp*temp
+      sume = sume + etot
+      sume2 = sume2 + etot*etot
    end do
    close(3)
    close(4)
    close(8)
+ 
+   ! Mean and standard deviation of T and E_tot over the run
+   tmean = sumt/nconf
+   emean = sume/nconf
+   tsd = dsqrt(sumt2/nconf - tmean**2)
+   esd = dsqrt(sume2/nconf - emean**2)
+   print *, 'steps  = ', nconf
+   print *, '<T>    = ', tmean, '  sigma_T = ', tsd
+   print *, '<Etot> = ', emean, '  sigma_E = ', esd
  
    ekin_avg = ekin_sum/dfloat(nconf)
    epot_avg = epot_sum/dfloat(nconf)

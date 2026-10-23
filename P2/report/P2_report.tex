@@ -284,17 +284,17 @@ Only the lines added in this step are shown, with a few lines of the existing pr
 
 \lstinputlisting[style=fortranstyle,firstline=51,lastline=56,firstnumber=51,caption={Unwrapped coordinates, initialised once the positions are in reduced units.},label={lst:ex3-runw}]{../leapfrog_step3/leapfroglj.f90}
 
-\lstinputlisting[style=fortranstyle,firstline=74,lastline=90,firstnumber=74,caption={Correlation window and circular buffer of time origins.},label={lst:ex3-window}]{../leapfrog_step3/leapfroglj.f90}
+\lstinputlisting[style=fortranstyle,firstline=78,lastline=94,firstnumber=78,caption={Correlation window and circular buffer of time origins.},label={lst:ex3-window}]{../leapfrog_step3/leapfroglj.f90}
 
-\lstinputlisting[style=fortranstyle,firstline=99,lastline=110,firstnumber=99,caption={Each leap-frog step is unfolded before \texttt{sample} accumulates $C(t)$ and $r^{2}(t)$.},label={lst:ex3-unfold}]{../leapfrog_step3/leapfroglj.f90}
+\lstinputlisting[style=fortranstyle,firstline=103,lastline=114,firstnumber=103,caption={Each leap-frog step is unfolded before \texttt{sample} accumulates $C(t)$ and $r^{2}(t)$.},label={lst:ex3-unfold}]{../leapfrog_step3/leapfroglj.f90}
 
-\lstinputlisting[style=fortranstyle,firstline=169,lastline=198,firstnumber=169,caption={Normalisation and output of the VACF and the MSD, and spectral density of $C(t)$.},label={lst:ex3-vacf}]{../leapfrog_step3/leapfroglj.f90}
+\lstinputlisting[style=fortranstyle,firstline=186,lastline=215,firstnumber=186,caption={Normalisation and output of the VACF and the MSD, and spectral density of $C(t)$.},label={lst:ex3-vacf}]{../leapfrog_step3/leapfroglj.f90}
 
-\lstinputlisting[style=fortranstyle,firstline=208,lastline=227,firstnumber=208,caption={Einstein self-diffusion coefficient from a linear fit of $r^{2}(t)$ in the diffusive regime.},label={lst:ex3-diff}]{../leapfrog_step3/leapfroglj.f90}
+\lstinputlisting[style=fortranstyle,firstline=225,lastline=244,firstnumber=225,caption={Einstein self-diffusion coefficient from a linear fit of $r^{2}(t)$ in the diffusive regime.},label={lst:ex3-diff}]{../leapfrog_step3/leapfroglj.f90}
 
-\lstinputlisting[style=fortranstyle,firstline=253,lastline=309,firstnumber=253,caption={Internal subroutine \texttt{sample}: VACF and MSD with multiple time origins.},label={lst:ex3-sample}]{../leapfrog_step3/leapfroglj.f90}
+\lstinputlisting[style=fortranstyle,firstline=270,lastline=326,firstnumber=270,caption={Internal subroutine \texttt{sample}: VACF and MSD with multiple time origins.},label={lst:ex3-sample}]{../leapfrog_step3/leapfroglj.f90}
 
-\lstinputlisting[style=fortranstyle,firstline=311,lastline=347,firstnumber=311,caption={Internal subroutine \texttt{spectrum}: composite Simpson $3/8$ cosine transform of the VACF.},label={lst:ex3-spectrum}]{../leapfrog_step3/leapfroglj.f90}
+\lstinputlisting[style=fortranstyle,firstline=328,lastline=364,firstnumber=328,caption={Internal subroutine \texttt{spectrum}: composite Simpson $3/8$ cosine transform of the VACF.},label={lst:ex3-spectrum}]{../leapfrog_step3/leapfroglj.f90}
 
 \subsection{Results}
 On the same $10000$-step trajectory ($N = 500$, $\rho^* = 0.835$, $\langle T^*\rangle = 0.713$), $C(t)$ and $r^{2}(t)$ were averaged over particles and time origins in a window of $1074$ steps ($t^* \le 4.98$). Figure~\ref{fig:ex3} shows the VACF, the MSD with its Einstein fit, and the spectral density $S(\omega)$. The fit gives a slope of $0.1988$ and an intercept of $0.025$, so $D^* = 0.0331$, i.e.\ $D = D^*\sigma^2/\tau = 0.178\text{ \AA}^2\text{ ps}^{-1} = 1.78\times 10^{-5}\text{ cm}^2\text{ s}^{-1}$.
