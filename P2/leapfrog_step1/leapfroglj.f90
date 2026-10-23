@@ -50,6 +50,11 @@ program leapfroglj
   call reduced(natoms, r, vinf, boxlength, deltat, epsil, sigma, &
                mass, uvel)
 
+  sumt = 0.d0
+  sumt2 = 0.d0
+  sume = 0.d0
+  sume2 = 0.d0
+
   ! 5. Start the loop to generate new configurations
   do i = 1, nconf
      call forces(natoms, r, boxlength, accel, rc, epot)
@@ -58,9 +63,22 @@ program leapfroglj
      etot = ecin + epot
      write(3,*) i*deltat, etot
      write(4,*) i*deltat, temp
+     sumt = sumt + temp
+     sumt2 = sumt2 + temp*temp
+     sume = sume + etot
+     sume2 = sume2 + etot*etot
   end do
   close(3)
   close(4)
+
+  ! Mean and standard deviation of T and E_tot over the run
+  tmean = sumt/nconf
+  emean = sume/nconf
+  tsd = dsqrt(sumt2/nconf - tmean**2)
+  esd = dsqrt(sume2/nconf - emean**2)
+  print *, 'steps  = ', nconf
+  print *, '<T>    = ', tmean, '  sigma_T = ', tsd
+  print *, '<Etot> = ', emean, '  sigma_E = ', esd
 
   ! 6. Saving last configuration in A and A/ps
   open(11, file='newconf.data', status='unknown')
