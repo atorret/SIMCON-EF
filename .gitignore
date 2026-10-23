@@ -12,3 +12,6 @@
 # Bulk Leibniz-series output (~27 MB, regenerate with P1/ex2/ex2.exe)
 P1/ex2/ex2_results.dat
 material/
+
+# Banco de preguntas (no se commitea)
+banco/
