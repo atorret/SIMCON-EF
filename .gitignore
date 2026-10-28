@@ -15,3 +15,11 @@ material/
 
 # Banco de preguntas (no se commitea)
 banco/
+
+# Proyectos finales de Atenea: solo se suben los PDF de enunciados
+Projecte/*.zip
+Projecte/enunciados/*.zip
+Projecte/enunciados/*.pdb
+Projecte/enunciados/*.psf
+Projecte/enunciados/*.prm
+Projecte/enunciados/*.namd
