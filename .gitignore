@@ -24,3 +24,6 @@ Projecte/enunciados/*.psf
 Projecte/enunciados/*.prm
 Projecte/enunciados/*.namd
 Projecte/SIMCON_Montull/
+
+# Auditorias antislop (locales)
+**/anti-slop/
