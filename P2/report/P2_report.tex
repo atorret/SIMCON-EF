@@ -148,7 +148,7 @@ Simulation of a simple Lennard-Jones fluid, such as liquid argon, with a hand-ma
 \end{itemize}
 
 \subsection{Code}
-This step runs the leap-frog program supplied with the practice, transcribed to free-form Fortran without algorithmic changes; only the accumulation and printing of the averages was added. The run uses the parameters of the statement ($10000$ steps, $N = 500$). The full program, with every later addition, is listed in the Annex.
+For this step we simply run the suplied leap-frog program.We just added the accumulation and printing of the averages. The run uses the parameters of the statement ($10000$ steps, $N = 500$). The full program, with every later addition, is listed in the Annex.
 
 \lstinputlisting[style=fortranstyle,firstline=53,lastline=81,firstnumber=53,caption={Main loop with the running sums of $T$ and $E_{\text{tot}}$ (added) and the printed means and standard deviations.},label={lst:ex1-loop}]{../leapfrog_step1/leapfroglj.f90}
 
