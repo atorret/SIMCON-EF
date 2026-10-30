@@ -196,12 +196,12 @@ Only the lines added for the radial distribution function, the virial pressure a
 \lstinputlisting[style=fortranstyle,firstline=230,lastline=237,firstnumber=230,caption={End of subroutine \texttt{lj}: virial of one pair inside the cutoff, and the $g(r)$ shell counted up to $L/2$.},label={lst:ex2-lj}]{../leapfrog_step2/leapfroglj.f90}
 
 \subsection{Results}
-The same $10000$-step trajectory as in Exercise~1 ($N = 500$, $\rho^* = 0.835$, $\langle T^*\rangle = 0.713$, $r_c = 2.5$) was used. $g(r)$ is accumulated in $1000$ shells up to $L^*/2 = 4.21$ and normalised by the ideal-gas content of each shell. The pressure is $P = P_{\text{kin}} + P_{\text{vir}} + P_{\text{tail}}$ with $P_{\text{kin}} = 2E_{\text{kin}}/(3V)$ and $P_{\text{vir}} = \frac{1}{3V}\sum_{i<j}\vec{r}_{ij}\cdot\vec{f}_{ij}$. The tails assume $g(r) = 1$ beyond $r_c$:
+For this exercise we reused the same $10000$-step trajectory as in Exercise~1 ($N = 500$, $\rho^* = 0.835$, $\langle T^*\rangle = 0.713$, $r_c = 2.5$). The radial distribution function was built by histogramming the pair distances into $1000$ shells up to $L^*/2 = 4.21$, and each shell was then normalised by the number of atoms an ideal gas of the same density would place in it. The pressure was split into a kinetic and a virial part, $P = P_{\text{kin}} + P_{\text{vir}} + P_{\text{tail}}$, with $P_{\text{kin}} = 2E_{\text{kin}}/(3V)$ and $P_{\text{vir}} = \frac{1}{3V}\sum_{i<j}\vec{r}_{ij}\cdot\vec{f}_{ij}$. Since the potential is cut at $r_c$, the interactions beyond the cutoff are recovered with the usual tail corrections, which assume the fluid is uniform ($g(r) = 1$) past $r_c$:
 \begin{equation}
   E_{\text{tail}} = \frac{8\pi}{3}\rho N\left(\frac{1}{3r_c^9} - \frac{1}{r_c^3}\right) = -223.67, \qquad
   P_{\text{tail}} = \frac{16\pi}{3}\rho^2\left(\frac{2}{3r_c^9} - \frac{1}{r_c^3}\right) = -0.7465.
 \end{equation}
-Figure~\ref{fig:ex2} shows $g(r)$, the pressure contributions and the running means of the totals. Table~\ref{tab:ex2} gives the mean of every contribution after increasing simulation lengths. The last row is the full run.
+Both depend only on the density, so they are constants simply added to the averages.
 
 \begin{figure}[H]
   \centering
@@ -223,7 +223,7 @@ Figure~\ref{fig:ex2} shows $g(r)$, the pressure contributions and the running me
   \caption{Structure and thermodynamics of the Lennard-Jones liquid in reduced units. (a)~Radial distribution function $g(r)$. (b)~Kinetic, potential ($P_{\text{vir}} + P_{\text{tail}}$) and total pressure versus time. (c)~Running means of $E_{\text{tot}}$ and $P_{\text{tot}}$ (tails included) from $t = 0$ to $t$.}
   \label{fig:ex2}
 \end{figure}
-
+\vspace{-0.6cm}
 \begin{table}[H]
   \centering
   \small
@@ -244,10 +244,19 @@ Figure~\ref{fig:ex2} shows $g(r)$, the pressure contributions and the running me
 
 \subsection{Discussion \& Notes}
 \begin{itemize}
-  \item \textbf{RDF:} $g(r) = 0$ inside the repulsive core ($r \lesssim 0.93$) and then oscillates as in a dense liquid. The first peak is at $r = 1.089$ ($g = 3.00$), the first minimum at $r = 1.544$ ($g = 0.576$), and further peaks at $r = 2.079$ ($g = 1.28$) and $r = 2.985$ ($g = 1.11$). The oscillations die out and $g(L/2) = 0.993 \approx 1$: there is short-range order but no long-range order.
-  \item \textbf{Energy:} $\langle E_{\text{tot}}\rangle/N = -4.98$ per particle, and the tail is $9\%$ of $E_{\text{tot}}$.
-  \item \textbf{Pressure:} $\langle P_{\text{kin}}\rangle = 0.5945 \approx \rho^* \langle T^*\rangle = 0.596$. The repulsive virial $0.100$ and the attractive tail $-0.746$ almost cancel it, so $P_{\text{tot}} = -0.052$ is close to zero. Without the tail $P^*$ would be $+0.69$, so the tail correction is essential at $r_c = 2.5$.
-  \item \textbf{Convergence:} $\langle E_{\text{tot}}\rangle$ changes by only $0.2$ (less than $0.01\%$) once a few thousand steps have been averaged. $\langle P_{\text{tot}}\rangle$ converges more slowly: it is a small difference of large terms. It settles after about $5000$ steps ($t^* \approx 23$) to within $\pm 0.006$.
+  \item \textbf{Results vs.\ expectations:}
+  \begin{itemize}
+    \item \emph{RDF:} As expected, $g(r)$ is zero inside the repulsive core ($r \lesssim 0.93$), since two atoms cannot get that close. It then rises to a sharp first peak of $g = 3.00$ at $r = 1.089$, the shell of nearest neighbours near the LJ minimum ($2^{1/6} \approx 1.12$), drops to a minimum of $g = 0.576$ at $r = 1.544$, and shows two weaker peaks at $r = 2.079$ ($g = 1.28$) and $r = 2.985$ ($g = 1.11$), the second and third shells. By $r = L/2$ the oscillations have died out ($g = 0.993 \approx 1$): each atom has well-defined neighbours but, unlike in a crystal, this order is lost after a few atomic diameters.
+
+    \item \emph{Energy:} The mean total energy is $\langle E_{\text{tot}}\rangle/N = -4.98$ per particle, negative as it should be for a bound liquid. The tail accounts for $9\%$ of it: although $V(r_c) \approx -0.016$ is very small, there are many neighbours beyond $r_c$.
+
+    \item \emph{Pressure:} The kinetic part, $\langle P_{\text{kin}}\rangle = 0.5945$, agrees with the ideal-gas value $\rho^* \langle T^*\rangle = 0.596$, as it must. The virial inside the cutoff is small and positive ($0.100$), as the repulsive core only slightly outweighs the attraction, while the tail is purely attractive and large ($-0.746$). Together they almost cancel the kinetic term, leaving $P_{\text{tot}} = -0.052$, very close to zero. Without the tail we would have obtained $P^* \approx +0.69$, so it is essential for the pressure, much more than for the energy.
+
+    \item \emph{Convergence:} The two totals converge at very different rates. $\langle E_{\text{tot}}\rangle$ barely moves, changing by only $0.2$ ($<0.01\%$) once a few thousand steps are averaged. $\langle P_{\text{tot}}\rangle$ is a small difference of large terms, so any fluctuation of $P_{\text{vir}}$ shows up directly in it; it only settles after about $5000$ steps ($t^* \approx 23$), staying within $\pm 0.006$ afterwards.
+  \end{itemize}
+
+  \item \textbf{Conclusion:}
+  The shell structure of $g(r)$, the negative energy and the near-zero pressure consistently describe a dense Lennard-Jones liquid. The energy converges quickly, while the pressure needs the tail correction and at least about $5000$ steps.
 \end{itemize}
 
 \newpage
