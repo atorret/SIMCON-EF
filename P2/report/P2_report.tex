@@ -12,12 +12,10 @@
 \usepackage{float}
 \usepackage{hyperref}
 
-% --- metadata (agent: set practice id/title; keep authors and date) ---
 \newcommand{\practiceid}{2}
 \newcommand{\practicetitle}{Practice 2}
 \newcommand{\reportauthors}{Arnau Torret \& Arnau Montull}
 \newcommand{\reportdate}{\today}
-\newcommand{\ph}[1]{\emph{[#1]}}
 
 \hypersetup{
   colorlinks=true,
@@ -129,8 +127,6 @@
 \end{titlepage}
 \hypersetup{pageanchor=true}
 
-% --- BEGIN EXERCISES ---
-
 \section{Exercise 1}
 
 \subsection{Question}
@@ -148,7 +144,7 @@ Simulation of a simple Lennard-Jones fluid, such as liquid argon, with a hand-ma
 \end{itemize}
 
 \subsection{Code}
-For this step we simply run the supplied leap-frog program. We just added the accumulation and printing of the averages. The run uses the parameters of the statement ($10000$ steps, $N = 500$). The full program, with every later addition, is listed in the Annex.
+For this step we ran the supplied leap-frog program and added the accumulation and printing of the averages. The run uses the parameters of the statement ($10000$ steps, $N = 500$). The full program, with every later addition, is listed in the Annex.
 
 \lstinputlisting[style=fortranstyle,firstline=53,lastline=81,firstnumber=53,caption={Main loop with the running sums of $T$ and $E_{\text{tot}}$ (added) and the printed means and standard deviations.},label={lst:ex1-loop}]{../leapfrog_step1/leapfroglj.f90}
 
@@ -201,7 +197,7 @@ For this exercise we reused the same $10000$-step trajectory as in Exercise~1 ($
   E_{\text{tail}} = \frac{8\pi}{3}\rho N\left(\frac{1}{3r_c^9} - \frac{1}{r_c^3}\right) = -223.67, \qquad
   P_{\text{tail}} = \frac{16\pi}{3}\rho^2\left(\frac{2}{3r_c^9} - \frac{1}{r_c^3}\right) = -0.7465.
 \end{equation}
-Both depend only on the density, so they are constants simply added to the averages.
+Both depend only on the density, so they are constants added to the averages (Fig.~\ref{fig:ex2}, Table~\ref{tab:ex2}).
 
 \begin{figure}[H]
   \centering
@@ -302,7 +298,7 @@ Only the lines added in this step are shown, with a few lines of the existing pr
 \lstinputlisting[style=fortranstyle,firstline=224,lastline=248,firstnumber=224,caption={Einstein self-diffusion coefficient from a linear fit of $r^{2}(t)$ in the diffusive regime.},label={lst:ex3-diff}]{../leapfrog_step3/leapfroglj.f90}
 
 \subsection{Results}
-On the same $10000$-step run as in Exercise~2 ($N = 500$, $\rho^* = 0.835$, $\langle T^*\rangle = 0.713$), $C(t)$ and $r^{2}(t)$ were averaged over all atoms and over many starting times, in a window of $1074$ steps ($t^* \le 4.98$). Figure~\ref{fig:ex3} shows the VACF, the MSD with its straight-line (Einstein) fit, and the spectral density $S(\omega)$. The fit gives a slope of $0.1988$ and an intercept of $0.025$, so $D = 0.0331$.
+On the same $10000$-step run as in Exercise~2 ($N = 500$, $\rho^* = 0.835$, $\langle T^*\rangle = 0.713$), $C(t)$ and $r^{2}(t)$ were averaged over all atoms and over $2000$ time origins (one every $5$ steps, up to $215$ at once), in a window of $1074$ steps ($t^* \le 4.98$). Figure~\ref{fig:ex3} shows the VACF, the MSD with its straight-line (Einstein) fit, and the spectral density $S(\omega)$. The fit gives a slope of $0.1988$ and an intercept of $0.025$, so $D = 0.0331$.
 
 \begin{figure}[H]
   \centering
@@ -330,13 +326,13 @@ On the same $10000$-step run as in Exercise~2 ($N = 500$, $\rho^* = 0.835$, $\la
 \begin{itemize}
   \item \textbf{Results vs.\ expectations:}
   \begin{itemize}
-    \item \emph{VACF:} The initial value $C(0) = 2.138$ agrees with the equipartition theorem, which gives a mean-square velocity of $\langle v^2\rangle = 3\langle T^*\rangle = 2.139$ (for $m = 1$). The velocity autocorrelation function $C(t)$ decays rapidly thereafter, retaining only $21\%$ of its initial value by $t^* = 0.1$. It crosses zero at $t^* = 0.139$ ($0.30\text{ ps}$) and reaches a minimum of $C = -0.256$ at $t^* = 0.195$ ($0.42\text{ ps}$). This negative correlation indicates backscattering: on average, a particle reverses its velocity after colliding with the transient ``cage'' formed by its nearest neighbors (corresponding to the first radial distribution peak at $r = 1.09$ in Exercise~2). Such rebound behavior is characteristic of dense liquids, in contrast to dilute gases where $C(t)$ decays monotonically toward zero. By $t^* \approx 0.64$, $|C| < 0.02$: the atom has lost memory of its initial velocity.
+    \item \emph{VACF:} The initial value $C(0) = 2.138$ agrees with the equipartition theorem, which gives a mean-square velocity of $\langle v^2\rangle = 3\langle T^*\rangle = 2.139$ (for $m = 1$). The velocity autocorrelation function $C(t)$ decays rapidly thereafter, retaining only $21\%$ of its initial value by $t^* = 0.1$. It crosses zero at $t^* = 0.139$ ($0.30\text{ ps}$) and reaches a minimum of $C = -0.256$ at $t^* = 0.195$ ($0.42\text{ ps}$). This negative correlation indicates backscattering: on average, a particle reverses its velocity after colliding with the transient ``cage'' formed by its nearest neighbours (corresponding to the first radial distribution peak at $r = 1.09$ in Exercise~2). Such rebound behaviour is characteristic of dense liquids, in contrast to dilute gases where $C(t)$ decays monotonically toward zero. By $t^* \approx 0.64$, $|C| < 0.02$: the atom has lost memory of its initial velocity.
 
-    \item \emph{MSD:} At very short timescales ($t^* \lesssim 0.05$), atomic motion is purely ballistic, satisfying $\langle \Delta r^2(t)\rangle \approx \langle v^2\rangle t^2$. Beyond this regime, frequent collisions deflect the particle, initiating a crossover into the diffusive regime; for $t^* \gtrsim 1$, $\langle \Delta r^2(t)\rangle$ scales linearly with time, consistent with Brownian motion.
+    \item \emph{MSD:} At very short timescales ($t^* \lesssim 0.05$), atomic motion is purely ballistic, satisfying $\langle \Delta r^2(t)\rangle \approx \langle v^2\rangle t^2$. Beyond this regime, frequent collisions deflect the particle, initiating a crossover into the diffusive regime; for $t^* \gtrsim 1$, $\langle \Delta r^2(t)\rangle$ scales linearly with time, as expected for normal (Fickian) diffusion.
 
     \item \emph{Direct Einstein ratio:} Calculating the instantaneous ratio $\langle \Delta r^2(t)\rangle / (6t)$ from~\eqref{eq:einstein} yields $0.0372$ at $t^* = 1$ and $0.0340$ at $t^* = 4.98$. Although this quotient asymptotically approaches the true diffusion coefficient, it systematically overestimates $D$ at finite times because it does not decouple the early-time ballistic displacement. A linear fit over the diffusive regime ($t^* \gtrsim 1$) avoids this: the slope gives $D = 0.0331$, and the non-zero intercept absorbs the ballistic offset.
 
-    \item \emph{Spectral density $S(\omega)$:} The velocity power spectrum has its maximum at $\omega = 8$ ($S = 0.158$) and decays sharply at high frequencies ($S = 5.4 \times 10^{-3}$ at $\omega = 40$; $5 \times 10^{-5}$ at $\omega = 100$). The non-zero value at the origin, $S(0) = 0.100$, indicates macroscopic self-diffusion. As a result, we can relate the self-diffusion coefficient with the spectral density at 0 using the Green--Kubo formula:
+    \item \emph{Spectral density $S(\omega)$:} The velocity power spectrum has its maximum at $\omega = 8$ ($S = 0.158$) and decays sharply at high frequencies ($S = 5.4 \times 10^{-3}$ at $\omega = 40$; $5 \times 10^{-5}$ at $\omega = 100$). The value at the origin, $S(0) = \int_0^\infty C(t)\,dt = 0.100$, is non-zero because the atoms diffuse, and the Green--Kubo formula relates it directly to the self-diffusion coefficient:
     \begin{equation}
       D = \frac{1}{3}\int_0^\infty C(t)\,dt = \frac{S(0)}{3} = 0.0334 \approx 0.0331,
     \end{equation}
@@ -344,7 +340,7 @@ On the same $10000$-step run as in Exercise~2 ($N = 500$, $\rho^* = 0.835$, $\la
   \end{itemize}
 
   \item \textbf{Conclusion:}
-  The backscattering minimum in $C(t)$, the soft vibrational peak of $S(\omega)$ at $\omega = 8$, and the diffusion coefficient $D \approx 0.033$ consistently describe the structural and dynamical properties of a dense Lennard-Jones liquid, corroborating the radial distribution function obtained in Exercise~2.
+  The minimum of $C(t)$ (the rebound against the first shell of neighbours seen in $g(r)$), the peak of $S(\omega)$ at $\omega = 8$ and a single diffusion coefficient from two independent routes, $D = 0.0331$ from the MSD and $0.0334$ from Green--Kubo, describe the dynamics of a dense Lennard-Jones liquid.
 \end{itemize}
 
 \clearpage
