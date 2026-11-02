@@ -222,3 +222,34 @@ subroutine velpos(natoms, vinf, accel, deltat, r, nf, ecin, temp, &
 
   return
 end subroutine velpos
+
+! energy old configuration
+call ener(natmos, ko, rold, enold, r, boxlength, rc)
+do l=1,3
+   rnew(l)=rold(l)+(rand()-0.5)*deltax
+end do
+
+! energy new configuration
+
+call ener(natmos, ko, rold, enold, r, boxlength, rc)
+
+roll = rand()
+if (roll.lt.exp(-beta*(ennew-enold))) then
+   do l=1,2,3
+      r(l,io)=rnew(l)
+   end do
+
+subrutine ener(natoms,io,enerio,r,boxlength,rc)
+implicit double precission(a-h,o-z)
+dimension r(3,1000)
+dimension rio(3)
+
+enerio = 0.d0
+do js = 1,natoms
+   if (js.ne.io) then
+      call ljmc(io,js,rio,r,boxlength,rc,pot)
+      enerio = enerio + pot
+   end if
+end do
+return
+end
