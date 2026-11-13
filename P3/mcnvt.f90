@@ -124,6 +124,21 @@ program mcnvt
   end do
   close(12)
 
+  ! Numerical integration of g(r) (trapezoidal rule): coordination number
+  !   n = 4 pi rho  Int_0^rcoord g(r) r^2 dr   (rcoord ~ first minimum of g(r))
+  rcoord = 1.5d0
+  coord = 0.d0
+  do ig = 1, nhis - 1
+     r1 = delg*(dfloat(ig) - 0.5d0)
+     r2 = delg*(dfloat(ig) + 0.5d0)
+     if (r2 .gt. rcoord) exit
+     f1 = g(ig)*r1*r1
+     f2 = g(ig+1)*r2*r2
+     coord = coord + 0.5d0*(f1 + f2)*delg
+  end do
+  coord = 4.d0*pi*rho*coord
+  print *, 'coordination number n(r<', rcoord, ') = ', coord
+
   ! 6. Saving last configuration in A
   open(11, file='newconf.data', status='unknown')
   do is = 1, natoms
