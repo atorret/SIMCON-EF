@@ -27,3 +27,8 @@ Projecte/SIMCON_Montull/
 
 # Auditorias antislop (locales)
 **/anti-slop/
+P3/runs/
+P3/figures/
+P3/*.exe
+P3/*-mc.dat
+P3/newconf.data
