@@ -3,11 +3,9 @@
 239.6d0
 3.405d0,119.8d0
 0.75d0
-0.83d0
 ********************************************************************
 1.ncycl,nsamp (number of MC trial moves, sample every nsamp moves)
 2.natoms
 3.tref (temperature in K; T* = tref/epsil, 239.6 K -> T* = 2.0)
 4.sigma,epsil (LJ parameters in A and K)
 5.deltax (maximum displacement in A; delta* = deltax/sigma; tune for ~50% acceptance)
-6.rho (reduced density rho*; if <= 0 the configuration is read from mc-conf.data)
