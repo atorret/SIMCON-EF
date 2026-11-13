@@ -6,9 +6,12 @@
 !          Built from leapfroglj.f90 (Practice 2).
 !
 !          Inputs (in this directory):
-!            mc-lj.data    simulation parameters
-!            mc-conf.data  initial configuration (positions in A, box in A)
-!                          T*=0.7, rho*=0.83 (approx.)
+!            mc-lj.data    simulation parameters (last line: rho*)
+!            mc-conf.data  only read if rho* <= 0 in mc-lj.data
+!                          (positions in A, box in A). If rho* > 0 the
+!                          initial FCC lattice (natoms = 4 n^3) is built
+!                          inside the program for that density.
+!          The first 20% of the cycles are equilibration (not averaged).
 !          Outputs:
 !            energy-mc.dat    cycle, U*/N   (every nsamp moves)
 !            pressure-mc.dat  cycle, P*     (every nsamp moves)
@@ -23,7 +26,8 @@ program mcnvt
   integer, parameter :: nhis = 500  ! number of g(r) bins
 
   ! 1. Defining dimensions
-  dimension r(3,1000), g(nhis)
+  dimension r(3,1000), g(nhis), bas(3,4)
+  data bas /0.d0,0.d0,0.d0, 0.5d0,0.5d0,0.d0, 0.5d0,0.d0,0.5d0, 0.d0,0.5d0,0.5d0/
 
   INCLUDE '../chdir_to_code.inc'
 
@@ -34,17 +38,41 @@ program mcnvt
   read(1,*) tref
   read(1,*) sigma, epsil
   read(1,*) deltax
+  read(1,*) rhoin
   close(1)
 
   rc = 2.5d0  ! cutoff radius in units of sigma
 
-  ! 3. Reading initial configuration (positions) in A
-  open(2, file='mc-conf.data', status='old')
-  do is = 1, natoms
-     read(2,*) (r(l,is), l=1,3)
-  end do
-  read(2,*) boxlength
-  close(2)
+  neq = ncycl/5  ! equilibration cycles, not averaged
+
+  ! 3. Initial configuration (positions) in A
+  if (rhoin .gt. 0.d0) then
+     ! FCC lattice with 4*nc**3 atoms at density rhoin (reduced)
+     nc = nint((dfloat(natoms)/4.d0)**(1.d0/3.d0))
+     if (4*nc**3 .ne. natoms) stop 'natoms must be 4*n**3 for an FCC start'
+     boxlength = (dfloat(natoms)/rhoin)**(1.d0/3.d0)*sigma
+     a = boxlength/nc
+     is = 0
+     do i = 0, nc-1
+        do j = 0, nc-1
+           do k = 0, nc-1
+              do ib = 1, 4
+                 is = is + 1
+                 r(1,is) = (i + 0.25d0 + bas(1,ib))*a
+                 r(2,is) = (j + 0.25d0 + bas(2,ib))*a
+                 r(3,is) = (k + 0.25d0 + bas(3,ib))*a
+              end do
+           end do
+        end do
+     end do
+  else
+     open(2, file='mc-conf.data', status='old')
+     do is = 1, natoms
+        read(2,*) (r(l,is), l=1,3)
+     end do
+     read(2,*) boxlength
+     close(2)
+  end if
 
   ! Opening files to write results
   open(3, file='energy-mc.dat', status='unknown')
@@ -81,7 +109,7 @@ program mcnvt
   ! 5. Start the loop to generate new configurations
   do icycl = 1, ncycl
      call mcmove(natoms, r, beta, boxlength, rc, deltax, macct, mnonacct)
-     if (mod(icycl,nsamp) .eq. 0) then
+     if (icycl .gt. neq .and. mod(icycl,nsamp) .eq. 0) then
         call sample(natoms, r, boxlength, rc, rho, temp, utail, ptail, &
                     upot, press, nhis, g, delg)
         upa = upot/dfloat(natoms)  ! interaction energy per atom
@@ -199,7 +227,7 @@ end subroutine sample
 ! Interaction between atom js and an atom io placed at rio.
 ! Returns the pair energy (pot) and the virial term r_ij . F_ij (rf).
 
-subroutine ljmc(io, js, rio, r, boxlength, rc, pot, rf)
+subroutine ljmc(js, rio, r, boxlength, rc, pot, rf)
   implicit double precision(a-h,o-z)
   dimension r(3,1000)
   dimension rij(3), rio(3)
@@ -286,7 +314,7 @@ subroutine ener(natoms, io, rio, enerio, r, boxlength, rc)
   enerio = 0.d0
   do js = 1, natoms
      if (js .ne. io) then
-        call ljmc(io, js, rio, r, boxlength, rc, pot, rf)
+        call ljmc(js, rio, r, boxlength, rc, pot, rf)
         enerio = enerio + pot
      end if
   end do
@@ -308,8 +336,8 @@ subroutine mcmove(natoms, r, beta, boxlength, rc, deltax, macct, mnonacct)
   dimension r(3,1000), rold(3), rnew(3)
 
   ! select a particle at random
-  roll = rand()
-  io = int(roll*natoms) + 1
+  call random_number(roll)
+  io = min(int(roll*natoms) + 1, natoms)
   do l = 1, 3
      rold(l) = r(l,io)
   end do
@@ -319,12 +347,13 @@ subroutine mcmove(natoms, r, beta, boxlength, rc, deltax, macct, mnonacct)
 
   ! trial position and energy of the new configuration
   do l = 1, 3
-     rnew(l) = rold(l) + (rand() - 0.5d0)*deltax
+     call random_number(roll)
+     rnew(l) = rold(l) + (roll - 0.5d0)*deltax
   end do
   call ener(natoms, io, rnew, ennew, r, boxlength, rc)
 
   ! Metropolis acceptance criterion
-  roll = rand()
+  call random_number(roll)
   if (roll .lt. dexp(-beta*(ennew - enold))) then
      do l = 1, 3
         r(l,io) = rnew(l)
