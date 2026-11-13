@@ -11,7 +11,6 @@
 !                          (positions in A, box in A). If rho* > 0 the
 !                          initial FCC lattice (natoms = 4 n^3) is built
 !                          inside the program for that density.
-!          The first 20% of the cycles are equilibration (not averaged).
 !          Outputs:
 !            energy-mc.dat    cycle, U*/N   (every nsamp moves)
 !            pressure-mc.dat  cycle, P*     (every nsamp moves)
@@ -42,8 +41,6 @@ program mcnvt
   close(1)
 
   rc = 2.5d0  ! cutoff radius in units of sigma
-
-  neq = ncycl/5  ! equilibration cycles, not averaged
 
   ! 3. Initial configuration (positions) in A
   if (rhoin .gt. 0.d0) then
@@ -109,7 +106,7 @@ program mcnvt
   ! 5. Start the loop to generate new configurations
   do icycl = 1, ncycl
      call mcmove(natoms, r, beta, boxlength, rc, deltax, macct, mnonacct)
-     if (icycl .gt. neq .and. mod(icycl,nsamp) .eq. 0) then
+     if (mod(icycl,nsamp) .eq. 0) then
         call sample(natoms, r, boxlength, rc, rho, temp, utail, ptail, &
                     upot, press, nhis, g, delg)
         upa = upot/dfloat(natoms)  ! interaction energy per atom
