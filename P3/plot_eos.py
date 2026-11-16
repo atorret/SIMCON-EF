@@ -33,12 +33,12 @@ for key, ylab, name in (("U_per_atom", r"$U^*/N$", "U_vs_rho"), ("P", r"$P^*$", 
         ax.errorbar(d["rho"], d[key], yerr=sig, marker="o", capsize=3, label=f"$n_{{cycl}}$={n:.0e}")
     if key == "P":
         rho = np.linspace(0, max(d["rho"].max() for d in series.values()), 50)
-        ax.plot(rho, rho * tstar, "k--", label=r"gas ideal $\rho^*T^*$")
+        ax.plot(rho, rho * tstar, "k--", label=r"ideal gas $\rho^*T^*$")
     else:
-        ax.axhline(0, color="k", ls="--", label="gas ideal")
+        ax.axhline(0, color="k", ls="--", label="ideal gas")
     ax.set_xlabel(r"$\rho^*$")
     ax.set_ylabel(ylab)
-    ax.set_title(rf"$T^*={tstar:g}$ (con correcciones de cola)")
+    ax.set_title(rf"$T^*={tstar:g}$ (with tail corrections)")
     ax.legend()
     fig.tight_layout()
     fig.savefig(FIG / f"{name}.png", dpi=200)
