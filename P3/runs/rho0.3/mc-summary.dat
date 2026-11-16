@@ -1,0 +1,2 @@
+#  rho*     T*      N        nequil         ncycl   nsamp  deltax*  acc     rc*     U*/N        sigma_U     err_U       P*          sigma_P     err_P
+  0.3000  2.0000   500       1000000      10000000     500  0.8751  0.4964  5.0000   -1.923246    0.041877    0.001495    0.486173    0.067962    0.000900

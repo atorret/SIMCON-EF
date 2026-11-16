@@ -1,0 +1,6 @@
+ T* =  2.0000   rho* =  0.2000   L* = 13.5721   rc* =  5.0000
+ nequil =     1000000   ncycl =    10000000   nsamp =     500
+ deltax* =   1.43465   acceptance =  0.4978
+ samples =     20000
+ U*/N, sigma_U, err =    -1.30335     0.03771     0.00123
+ P*  , sigma_P, err =     0.32826     0.03673     0.00034

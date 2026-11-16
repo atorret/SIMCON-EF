@@ -1,0 +1,16 @@
+10000000 500 1000000
+500
+2.0d0
+3.405d0,119.8d0
+0.5d0
+0.6d0
+12345
+********************************************************************
+1.ncycl, nsamp, nequil (production trial moves, sample every nsamp moves,
+                        equilibration trial moves; 1 cycle = 1 trial move)
+2.natoms
+3.tref (T*)
+4.sigma,epsil (LJ parameters in A and K)
+5.deltax (initial max. displacement in sigma; tuned to 50% acceptance in equilibration)
+6.rho* (target density; <= 0 keeps the density of leap-conf.data, ~0.835)
+7.iseed (random number seed)
