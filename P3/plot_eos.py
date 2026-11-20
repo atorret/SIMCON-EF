@@ -91,6 +91,20 @@ fig.tight_layout()
 fig.savefig(FIG / "U_vs_icycl.png", dpi=200)
 plt.close(fig)
 
+# P* frente a icycl para todas las densidades (serie de 1e6)
+fig, ax = plt.subplots(figsize=(7, 4.2))
+for d, col in zip(dirs, plt.cm.turbo(np.linspace(0.05, 0.95, len(dirs)))):
+    c, p = np.loadtxt(d / "pressure-mc.dat", unpack=True)
+    ax.plot(c, p, lw=0.6, color=col, label=rf"$\rho^*={float(d.name[3:]):.1f}$")
+ax.set_xlim(0, n1)
+ax.set_xlabel(r"icycl (MC trial moves)")
+ax.set_ylabel(r"$P^*$")
+ax.set_title(rf"$T^*={tstar:g}$, $n_{{cycl}}$={n1:.0e}")
+ax.legend(fontsize=7, ncol=4, loc="lower right")
+fig.tight_layout()
+fig.savefig(FIG / "P_vs_icycl.png", dpi=200)
+plt.close(fig)
+
 # U*/N frente a icycl a rho*=0.8, con la media directa y la de integrar g(r)
 c, u = np.loadtxt(RUNS / f"n{n1}" / "rho0.80" / "energy-mc.dat", unpack=True)
 s = series[n1]
