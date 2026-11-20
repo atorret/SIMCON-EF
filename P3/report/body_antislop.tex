@@ -1,4 +1,4 @@
-% Version antislop de body.tex (texto reescrito y codigo de ../antislop/mcnvt.f90).
+% Version antislop de body.tex (texto reescrito; mismo codigo ../mcnvt.f90).
 % Mismos resultados, figuras y tablas que body.tex.
 
 % ============================================================================
@@ -19,15 +19,15 @@ Determine the equation of state of a Lennard-Jones fluid for the isotherm $T^*=2
 We turned \texttt{leapfroglj.f90} from Practice~2 into the Monte Carlo program \texttt{mcnvt.f90}: the velocities and accelerations go away, \texttt{velpos} becomes the trial move \texttt{mcmove}, and \texttt{lj} only has to return the pair energy. The program uses reduced units ($\sigma=\epsilon=k_B=1$), $N=500$ atoms in a cubic box with periodic boundary conditions and the minimum image convention, and the Lennard-Jones potential cut at $r_c=2.5\sigma$. The full source is in the Annex.
 
 In each trial move (Step~1) we pick one atom at random, shift it by a random amount between $-\Delta/2$ and $\Delta/2$ along each axis, and accept the new position with probability $\min\{1,e^{-\beta\,\delta U}\}$. The energy change $\delta U$ only involves the moved atom, so \texttt{ener} sums its $N-1$ pair energies before and after the move.
-\lstinputlisting[style=fortranstyle,firstline=262,lastline=296,firstnumber=262,caption={Metropolis move \texttt{mcmove}.},label={lst:mcmove}]{../antislop/mcnvt.f90}
+\lstinputlisting[style=fortranstyle,firstline=262,lastline=296,firstnumber=262,caption={Metropolis move \texttt{mcmove}.},label={lst:mcmove}]{../mcnvt.f90}
 
 Every \texttt{nsamp} moves, \texttt{sample} goes over all pairs once and returns $U$ and the virial pressure, while \texttt{lj} adds each pair to the $g(r)$ histogram (Steps~2--3). This is the \texttt{forces} loop of Practice~2 without the accelerations. Both $U$ and $P$ include the tail corrections of a uniform fluid beyond $r_c$,
 \begin{equation}
   \frac{U_{\mathrm{tail}}}{N}=\frac{8\pi}{3}\rho\Big(\frac{1}{3r_c^9}-\frac{1}{r_c^3}\Big),\qquad
   P_{\mathrm{tail}}=\frac{16\pi}{3}\rho^2\Big(\frac{2}{3r_c^9}-\frac{1}{r_c^3}\Big).
 \end{equation}
-\lstinputlisting[style=fortranstyle,firstline=49,lastline=52,firstnumber=49,caption={Tail corrections (same lines as in Practice~2).},label={lst:tail}]{../antislop/mcnvt.f90}
-\lstinputlisting[style=fortranstyle,firstline=144,lastline=167,firstnumber=144,caption={Subroutine \texttt{sample}: $U$ and $P$ of the current configuration.},label={lst:sample}]{../antislop/mcnvt.f90}
+\lstinputlisting[style=fortranstyle,firstline=49,lastline=52,firstnumber=49,caption={Tail corrections (same lines as in Practice~2).},label={lst:tail}]{../mcnvt.f90}
+\lstinputlisting[style=fortranstyle,firstline=144,lastline=167,firstnumber=144,caption={Subroutine \texttt{sample}: $U$ and $P$ of the current configuration.},label={lst:sample}]{../mcnvt.f90}
 
 $\sigma_U$ and $\sigma_P$ are the standard deviations of the 2000 values sampled in each run.
 
@@ -146,5 +146,5 @@ Tables~\ref{tab:n1000000} and~\ref{tab:n10000000} give the technical parameters 
 \clearpage
 Full source of the Monte Carlo program.
 
-\lstinputlisting[style=fortranstyle,caption={Full program \texttt{mcnvt.f90}.},label={lst:full}]{../antislop/mcnvt.f90}
+\lstinputlisting[style=fortranstyle,caption={Full program \texttt{mcnvt.f90}.},label={lst:full}]{../mcnvt.f90}
 \end{document}

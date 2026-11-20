@@ -2,28 +2,16 @@
 !          Monte Carlo code to simulate at NVT ensemble
 !          a system of N atoms of Ar inside a cubic box, interacting
 !          through a truncated Lennard-Jones potential at 2.5 sigma.
-!          Metropolis algorithm with single-particle trial moves.
-!          Built from leapfroglj.f90 (Practice 2).
-!
-!          Inputs (in this directory):
-!            mc-lj.data    simulation parameters
-!            mc-conf.data  initial configuration (positions in A, box in A)
-!                          T*=0.7, rho*=0.83 (approx.)
-!          Outputs:
-!            energy-mc.dat    cycle, U*/N   (every nsamp moves)
-!            pressure-mc.dat  cycle, P*     (every nsamp moves)
-!            gdr-mc.dat       r*, g(r)      (averaged over the samples)
-!            newconf.data     last configuration, same format as mc-conf.data
-!
+!          Metropolis algorithm.
 !*****************************************************************************
 program mcnvt
   implicit double precision(a-h,o-z)
-  double precision, parameter :: pi = 3.14159265358979d0
-
-  integer, parameter :: nhis = 500  ! number of g(r) bins
+  double precision nid
 
   ! 1. Defining dimensions
-  dimension r(3,1000), g(nhis)
+  dimension r(3,1000)
+  parameter (nhis = 500)
+  dimension g(nhis)
 
   INCLUDE '../chdir_to_code.inc'
 
@@ -53,17 +41,18 @@ program mcnvt
   ! 4. Change to reduced units
   call reduced(natoms, r, boxlength, deltax, sigma)
 
-  temp = tref/epsil   ! T*
-  beta = 1.d0/temp    ! beta* = 1/T*
-  vol = boxlength**3
-  rho = dfloat(natoms)/vol
-
-  ! Tail corrections (truncated LJ potential, g(r)=1 beyond rc)
-  rci3 = 1.d0/rc**3
-  rci9 = rci3**3
-  utail = 8.d0/3.d0*pi*dfloat(natoms)*rho*(rci9/3.d0 - rci3)
-  ptail = 16.d0/3.d0*pi*rho*rho*(2.d0/3.d0*rci9 - rci3)
-
+  temp = tref/epsil
+  beta = 1.d0/temp
+  pi = 4.d0*datan(1.d0)
+  delg = boxlength/(2.d0*dfloat(nhis))
+  rho = dfloat(natoms)/boxlength**3
+  etail = (8.d0*pi/3.d0)*rho*dfloat(natoms)* &
+          (1.d0/(3.d0*rc**9) - 1.d0/rc**3)
+  ptail = (16.d0*pi/3.d0)*rho**2* &
+          (2.d0/(3.d0*rc**9) - 1.d0/rc**3)
+  do j = 1, nhis
+     g(j) = 0.d0
+  end do
   macct = 0
   mnonacct = 0
   nsamples = 0
@@ -72,19 +61,13 @@ program mcnvt
   sump = 0.d0
   sump2 = 0.d0
 
-  ! g(r) histogram from 0 to boxlength/2
-  delg = boxlength/(2.d0*nhis)
-  do ig = 1, nhis
-     g(ig) = 0.d0
-  end do
-
   ! 5. Start the loop to generate new configurations
   do icycl = 1, ncycl
      call mcmove(natoms, r, beta, boxlength, rc, deltax, macct, mnonacct)
      if (mod(icycl,nsamp) .eq. 0) then
-        call sample(natoms, r, boxlength, rc, rho, temp, utail, ptail, &
+        call sample(natoms, r, boxlength, rc, rho, temp, etail, ptail, &
                     upot, press, nhis, g, delg)
-        upa = upot/dfloat(natoms)  ! interaction energy per atom
+        upa = upot/dfloat(natoms)
         write(3,*) icycl, upa
         write(4,*) icycl, press
         nsamples = nsamples + 1
@@ -97,11 +80,10 @@ program mcnvt
   close(3)
   close(4)
 
-  ! Mean and standard deviation of U*/N and P* over the samples
   umean = sumu/nsamples
   pmean = sump/nsamples
-  usd = dsqrt(max(0.d0, sumu2/nsamples - umean**2))
-  psd = dsqrt(max(0.d0, sump2/nsamples - pmean**2))
+  usd = dsqrt(sumu2/nsamples - umean**2)
+  psd = dsqrt(sump2/nsamples - pmean**2)
   acc = dfloat(macct)/dfloat(macct + mnonacct)
 
   print *, 'T*          = ', temp
@@ -112,19 +94,20 @@ program mcnvt
   print *, 'acceptance  = ', acc
   print *, '<U*>/N      = ', umean, '  sigma_U = ', usd
   print *, '<P*>        = ', pmean, '  sigma_P = ', psd
-  print *, 'U*tail/N    = ', utail/dfloat(natoms), '  P*tail = ', ptail
+  print *, 'U*tail/N    = ', etail/dfloat(natoms), '  P*tail = ', ptail
 
-  ! Normalising g(r): counts per atom and sample / ideal-gas counts in the shell
+  ! 6. Radial distribution function in reduced units
   open(12, file='gdr-mc.dat', status='unknown')
-  do ig = 1, nhis
-     rbin = delg*(dfloat(ig) - 0.5d0)
-     vshell = 4.d0/3.d0*pi*(dfloat(ig)**3 - dfloat(ig-1)**3)*delg**3
-     g(ig) = g(ig)/(dfloat(nsamples)*dfloat(natoms)*rho*vshell)
-     write(12,*) rbin, g(ig)
+  do j = 1, nhis
+     rr = delg*(dfloat(j) - 0.5d0)
+     vb = (dfloat(j)**3 - dfloat(j-1)**3)*delg**3
+     nid = (4.d0/3.d0)*pi*vb*rho
+     g(j) = g(j)/(dfloat(nsamples)*dfloat(natoms)*nid)
+     write(12,*) rr, g(j)
   end do
   close(12)
 
-  ! 6. Saving last configuration in A
+  ! 7. Saving last configuration in A
   open(11, file='newconf.data', status='unknown')
   do is = 1, natoms
      write(11,*) (r(l,is)*sigma, l=1,3)
@@ -136,9 +119,7 @@ program mcnvt
 end program mcnvt
 
 !*********************************************************
-!*********************************************************
 !              subroutine reduced
-!*********************************************************
 !*********************************************************
 
 subroutine reduced(natoms, r, boxlength, deltax, sigma)
@@ -157,16 +138,11 @@ subroutine reduced(natoms, r, boxlength, deltax, sigma)
 end subroutine reduced
 
 !*********************************************************
-!*********************************************************
 !              subroutine sample
 !*********************************************************
-!*********************************************************
 
-! Total interaction energy (U*) and pressure (P*, virial route) of the
-! current configuration, both including tail corrections.
-! Also accumulates the g(r) histogram.
-
-subroutine sample(natoms, r, boxlength, rc, rho, temp, utail, ptail, &
+! U* and P* (virial route) of the configuration, with tail corrections.
+subroutine sample(natoms, r, boxlength, rc, rho, temp, etail, ptail, &
                   upot, press, nhis, g, delg)
   implicit double precision(a-h,o-z)
   dimension r(3,1000)
@@ -178,105 +154,61 @@ subroutine sample(natoms, r, boxlength, rc, rho, temp, utail, ptail, &
   ! atom-atom interactions
   do is = 1, natoms-1
      do js = is+1, natoms
-        call lj(is, js, r, boxlength, rc, pot, rf, nhis, g, delg)
+        call lj(is, js, r, boxlength, rc, pot, virij, nhis, g, delg)
         upot = upot + pot
-        vir = vir + rf
+        vir = vir + virij
      end do
   end do
 
-  upot = upot + utail
+  upot = upot + etail
   press = rho*temp + vir/(3.d0*boxlength**3) + ptail
 
   return
 end subroutine sample
 
 !*********************************************************
-!*********************************************************
-!              subroutine Lennard-Jones For Monte Carlo
-!*********************************************************
+!              subroutine Lennard-Jones
 !*********************************************************
 
-! Interaction between atom js and an atom io placed at rio.
-! Returns the pair energy (pot) and the virial term r_ij . F_ij (rf).
-
-subroutine ljmc(io, js, rio, r, boxlength, rc, pot, rf)
+subroutine lj(is, js, r, boxlength, rc, pot, virij, nhis, g, delg)
   implicit double precision(a-h,o-z)
   dimension r(3,1000)
-  dimension rij(3), rio(3)
+  dimension rij(3)
+  dimension g(nhis)
 
   rr2 = 0.d0
   pot = 0.d0
-  rf = 0.d0
+  virij = 0.d0
+
   do l = 1, 3
-     rijl = r(l,js) - rio(l)
+     rijl = r(l,js) - r(l,is)
      rij(l) = rijl - boxlength*dnint(rijl/boxlength)
      rr2 = rr2 + rij(l)*rij(l)
   end do
 
-  if (rr2 .lt. rc*rc) then  ! same as rr < rc, without the square root
+  rr = dsqrt(rr2)
+
+  if (rr .lt. rc) then
      ynvrr2 = 1.d0/rr2
      ynvrr6 = ynvrr2*ynvrr2*ynvrr2
      ynvrr12 = ynvrr6*ynvrr6
+     forcedist = 24.d0*(2.d0*ynvrr12 - ynvrr6)*ynvrr2
      pot = 4.d0*(ynvrr12 - ynvrr6)
-     rf = 24.d0*(2.d0*ynvrr12 - ynvrr6)
+     virij = forcedist*rr2
+  end if
+
+  ! Histogram of pair distances up to L/2 (minimum image).
+  if (rr .lt. boxlength/2.d0) then
+     ig = int(rr/delg) + 1
+     if (ig .ge. 1 .and. ig .le. nhis) g(ig) = g(ig) + 2.d0
   end if
 
   return
-end subroutine ljmc
-
-!*********************************************************
-!*********************************************************
-!              subroutine Lennard-Jones (sampling)
-!*********************************************************
-!*********************************************************
-
-! Interaction between atoms is and js of the configuration.
-! Returns the pair energy (pot) and the virial term r_ij . F_ij (virij),
-! and adds the pair to the g(r) histogram (bins of width delg).
-
-subroutine lj(is, js, r, boxlength, rc, pot, virij, nhis, g, delg)
-   implicit double precision(a-h,o-z)
-   dimension r(3,1000)
-   dimension rij(3)
-   dimension g(nhis)
-
-   rr2 = 0.d0
-   pot = 0.d0
-   virij = 0.d0
-
-   do l = 1, 3
-      rijl = r(l,js) - r(l,is)
-      rij(l) = rijl - boxlength*dnint(rijl/boxlength)
-      rr2 = rr2 + rij(l)*rij(l)
-   end do
-
-   rr = dsqrt(rr2)
-
-   if (rr.lt.boxlength/2.d0) then
-      ig = int(rr/delg) + 1   ! bins 1..nhis
-      g(ig) = g(ig) + 2.d0    ! pair counted for both atoms
-
-      if (rr.lt.rc) then
-         ynvrr1 = 1.d0/rr
-         ynvrr2 = ynvrr1*ynvrr1
-         ynvrr6 = ynvrr2*ynvrr2*ynvrr2
-         ynvrr12 = ynvrr6*ynvrr6
-         forcedist = 24.d0*(2.d0*ynvrr12 - ynvrr6)*ynvrr1  ! |F_ij|
-         pot = 4.d0*(ynvrr12 - ynvrr6)
-         virij = forcedist*rr                             ! r_ij . F_ij
-      end if
-   end if
-
-   return
 end subroutine lj
 
 !*********************************************************
-!*********************************************************
 !              subroutine ener
 !*********************************************************
-!*********************************************************
-
-! Interaction energy of atom io, placed at rio, with all the other atoms.
 
 subroutine ener(natoms, io, rio, enerio, r, boxlength, rc)
   implicit double precision(a-h,o-z)
@@ -286,7 +218,7 @@ subroutine ener(natoms, io, rio, enerio, r, boxlength, rc)
   enerio = 0.d0
   do js = 1, natoms
      if (js .ne. io) then
-        call ljmc(io, js, rio, r, boxlength, rc, pot, rf)
+        call ljmc(io, js, rio, r, boxlength, rc, pot)
         enerio = enerio + pot
      end if
   end do
@@ -295,13 +227,37 @@ subroutine ener(natoms, io, rio, enerio, r, boxlength, rc)
 end subroutine ener
 
 !*********************************************************
+!              subroutine Lennard-Jones (MC)
+!*********************************************************
+
+subroutine ljmc(io, js, rio, r, boxlength, rc, pot)
+  implicit double precision(a-h,o-z)
+  dimension r(3,1000)
+  dimension rij(3), rio(3)
+
+  rr2 = 0.d0
+  pot = 0.d0
+  do l = 1, 3
+     rijl = r(l,js) - rio(l)
+     rij(l) = rijl - boxlength*dnint(rijl/boxlength)
+     rr2 = rr2 + rij(l)*rij(l)
+  end do
+
+  rr = dsqrt(rr2)
+
+  if (rr .lt. rc) then
+     ynvrr2 = 1.d0/rr2
+     ynvrr6 = ynvrr2*ynvrr2*ynvrr2
+     ynvrr12 = ynvrr6*ynvrr6
+     pot = 4.d0*(ynvrr12 - ynvrr6)
+  end if
+
+  return
+end subroutine ljmc
+
 !*********************************************************
 !              subroutine mcmove
 !*********************************************************
-!*********************************************************
-
-! One Metropolis trial move: displace a random atom by up to deltax/2
-! in each direction and accept with probability min(1, exp(-beta*dU)).
 
 subroutine mcmove(natoms, r, beta, boxlength, rc, deltax, macct, mnonacct)
   implicit double precision(a-h,o-z)
@@ -314,18 +270,14 @@ subroutine mcmove(natoms, r, beta, boxlength, rc, deltax, macct, mnonacct)
      rold(l) = r(l,io)
   end do
 
-  ! energy of the old configuration
   call ener(natoms, io, rold, enold, r, boxlength, rc)
-
-  ! trial position and energy of the new configuration
   do l = 1, 3
-     rnew(l) = rold(l) + (rand() - 0.5d0)*deltax
+     rnew(l) = rold(l) + (rand() - 0.5)*deltax
   end do
-  call ener(natoms, io, rnew, ennew, r, boxlength, rc)
 
-  ! Metropolis acceptance criterion
+  call ener(natoms, io, rnew, ennew, r, boxlength, rc)
   roll = rand()
-  if (roll .lt. dexp(-beta*(ennew - enold))) then
+  if (roll .lt. exp(-beta*(ennew - enold))) then
      do l = 1, 3
         r(l,io) = rnew(l)
      end do

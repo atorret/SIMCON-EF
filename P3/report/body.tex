@@ -16,15 +16,15 @@ Determine the equation of state of a Lennard-Jones fluid for the isotherm $T^*=2
 First of all, we adapted \texttt{leapfroglj.f90} (Practice~2) into the Monte Carlo program \texttt{mcnvt.f90}. It works in reduced units ($\sigma=\epsilon=k_B=1$), with $N=500$ atoms in a cubic box with periodic boundary conditions (minimum image) and a Lennard-Jones potential truncated at $r_c=2.5\sigma$. The full program is in the Annex, and we will discuss the key pieces below 
 
 One Metropolis trial move (Step~1): a random atom is displaced by up to $\pm\Delta/2$ along each axis and accepted with probability $\min\{1,e^{-\beta\,\delta U}\}$. Only the energy of the moved atom with the others is computed ($O(N)$ per move).
-\lstinputlisting[style=fortranstyle,firstline=306,lastline=344,firstnumber=306,caption={Metropolis move \texttt{mcmove}.},label={lst:mcmove}]{../mcnvt.f90}
+\lstinputlisting[style=fortranstyle,firstline=262,lastline=296,firstnumber=262,caption={Metropolis move \texttt{mcmove}.},label={lst:mcmove}]{../mcnvt.f90}
 
 Energy, virial and $g(r)$ histogram are evaluated on the whole configuration every \texttt{nsamp} moves (Steps~2--3). The tail corrections for a uniform fluid beyond $r_c$ are added to $U$ and $P$,
 \begin{equation}
   \frac{U_{\mathrm{tail}}}{N}=\frac{8\pi}{3}\rho\Big(\frac{1}{3r_c^9}-\frac{1}{r_c^3}\Big),\qquad
   P_{\mathrm{tail}}=\frac{16\pi}{3}\rho^2\Big(\frac{2}{3r_c^9}-\frac{1}{r_c^3}\Big).
 \end{equation}
-\lstinputlisting[style=fortranstyle,firstline=61,lastline=65,firstnumber=61,caption={Tail corrections.},label={lst:tail}]{../mcnvt.f90}
-\lstinputlisting[style=fortranstyle,firstline=169,lastline=191,firstnumber=169,caption={Subroutine \texttt{sample}: $U$ and $P$ (virial route) of the current configuration.},label={lst:sample}]{../mcnvt.f90}
+\lstinputlisting[style=fortranstyle,firstline=49,lastline=52,firstnumber=49,caption={Tail corrections.},label={lst:tail}]{../mcnvt.f90}
+\lstinputlisting[style=fortranstyle,firstline=144,lastline=167,firstnumber=144,caption={Subroutine \texttt{sample}: $U$ and $P$ (virial route) of the current configuration.},label={lst:sample}]{../mcnvt.f90}
 
 $\sigma_U$ and $\sigma_P$ are the standard deviations of the values sampled along the run (2000 samples per run).
 
@@ -72,7 +72,7 @@ Figure~\ref{fig:traces} shows the output of one run of the program (the $\rho^*=
 \subsection{Code}
 The program of Part~1 is used unchanged. The series (Step~4) is launched by \texttt{run\_series.py}: it builds an fcc lattice of $500$ atoms at each $\rho^*$, tunes $\Delta$ with short runs for an acceptance rate near $50\%$ (for $\rho^*\le0.3$ the acceptance stays higher, $\Delta^*=0.881$), and then runs the production. Step~7 was done with \texttt{integrar\_gdr.py}, which integrates the saved $g(r)$ (500 bins up to $L/2$) up to $r_c$ with the rectangle rule and adds the same tail corrections. Figures are made by \texttt{plot\_eos.py}.
 
-The program has no density parameter: $\rho^*$ is set by the initial configuration. \texttt{write\_fcc} places $4n^3=500$ atoms ($n=5$ fcc cells per side) in a box of side $L^*=(4n^3/\rho^*)^{1/3}$ and writes the positions and $L=L^*\sigma$ in \AA{} to \texttt{mc-conf.data}. \texttt{mcnvt.f90} reads them and computes $\rho^*=N/L^{*3}$ (line~59), so the run is at the chosen density.
+The program has no density parameter: $\rho^*$ is set by the initial configuration. \texttt{write\_fcc} places $4n^3=500$ atoms ($n=5$ fcc cells per side) in a box of side $L^*=(4n^3/\rho^*)^{1/3}$ and writes the positions and $L=L^*\sigma$ in \AA{} to \texttt{mc-conf.data}. \texttt{mcnvt.f90} reads them and computes $\rho^*=N/L^{*3}$ (line~48), so the run is at the chosen density.
 \lstinputlisting[style=fortranstyle,language=Python,morecomment={[l]\#},firstline=54,lastline=63,firstnumber=54,caption={\texttt{write\_fcc} in \texttt{run\_series.py}: fcc lattice at density $\rho^*$.},label={lst:fcc}]{../run_series.py}
 
 \subsection{Results}
