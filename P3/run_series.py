@@ -52,7 +52,7 @@ def compile_exe() -> Path:
 
 
 def write_fcc(path: Path, rho: float, n: int = 5) -> None:
-    box = (4 * n**3 / rho) ** (1 / 3)  # en sigma
+    box = (4 * n**3 / rho) ** (1 / 3)  # in units of sigma
     a = box / n
     basis = [(0, 0, 0), (.5, .5, 0), (.5, 0, .5), (0, .5, .5)]
     with open(path, "w") as f:

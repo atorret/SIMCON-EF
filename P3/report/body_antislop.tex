@@ -75,6 +75,9 @@ Figure~\ref{fig:traces} shows one run of the program: the $\rho^*=0.5$ point of 
 \subsection{Code}
 The Fortran program is the one of Part~1, unchanged. \texttt{run\_series.py} runs the series of Step~4: for each $\rho^*$ it writes an fcc lattice of $500$ atoms, adjusts $\Delta$ with short runs until about half of the moves are accepted, and then launches the production run. For $\rho^*\le0.3$ the acceptance stays above $50\%$ even at the largest step we allowed, $\Delta^*=0.881$. \texttt{integrar\_gdr.py} does Step~7: it integrates the saved $g(r)$ (500 bins up to $L/2$) from $0$ to $r_c$ with the rectangle rule and adds the same tail corrections. \texttt{plot\_eos.py} makes the figures.
 
+The program has no density parameter: $\rho^*$ is set by the initial configuration. \texttt{write\_fcc} places $4n^3=500$ atoms ($n=5$ fcc cells per side) in a box of side $L^*=(4n^3/\rho^*)^{1/3}$ and writes the positions and $L=L^*\sigma$ in \AA{} to \texttt{mc-conf.data}. \texttt{mcnvt.f90} reads them and computes $\rho^*=N/L^{*3}$ (line~48), so the run is at the chosen density.
+\lstinputlisting[style=fortranstyle,language=Python,morecomment={[l]\#},firstline=54,lastline=63,firstnumber=54,caption={\texttt{write\_fcc} in \texttt{run\_series.py}: fcc lattice at density $\rho^*$.},label={lst:fcc}]{../run_series.py}
+
 \subsection{Results}
 Tables~\ref{tab:n1000000} and~\ref{tab:n10000000} give the technical parameters and the results of the two series, $n_{\mathrm{cycl}}=10^6$ and $10^7$ moves ($2000$ and $20000$ moves per atom), both with $r_c^*=2.5$.
 
