@@ -1,0 +1,130 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{float}
+\usepackage{hyperref}
+
+\newcommand{\practiceid}{3}
+\newcommand{\practicetitle}{Practice 3}
+\newcommand{\reportauthors}{Arnau Torret \& Arnau Montull}
+\newcommand{\reportdate}{\today}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  urlcolor=blue,
+  citecolor=blue,
+  pdftitle={\practicetitle},
+  pdfauthor={\reportauthors}
+}
+
+\definecolor{codebg}{RGB}{247,247,247}
+\definecolor{codeframe}{RGB}{200,200,200}
+\definecolor{codekw}{RGB}{0,71,171}
+\definecolor{codetype}{RGB}{11,110,79}
+\definecolor{codeattr}{RGB}{125,60,152}
+\definecolor{codestr}{RGB}{163,21,21}
+\definecolor{codecmt}{RGB}{106,115,125}
+
+% listings has no [free]Fortran dialect; define free-form Fortran 90 here.
+\lstdefinelanguage{Fortran90}{
+  sensitive=false,
+  alsoletter={_},
+  morekeywords=[1]{
+    program,end,if,then,else,elseif,endif,do,while,enddo,
+    call,return,contains,subroutine,function,module,use,only,
+    select,case,default,exit,cycle,stop,continue,
+    allocate,deallocate,open,close,read,write,print,
+    include,implicit,none,interface,procedure,result,
+    where,elsewhere,block,pure,elemental,recursive
+  },
+  morekeywords=[2]{
+    integer,real,double,precision,complex,logical,character,
+    type,class,kind
+  },
+  morekeywords=[3]{
+    parameter,dimension,allocatable,intent,in,out,inout,
+    optional,pointer,target,save,public,private,external,
+    intrinsic,contiguous,value
+  },
+  morecomment=[l]!,
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstdefinestyle{fortranstyle}{
+  language=Fortran90,
+  basicstyle=\ttfamily\footnotesize,
+  backgroundcolor=\color{codebg},
+  keywordstyle=[1]\color{codekw}\bfseries,
+  keywordstyle=[2]\color{codetype}\bfseries,
+  keywordstyle=[3]\color{codeattr},
+  commentstyle=\color{codecmt}\itshape,
+  stringstyle=\color{codestr},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=8pt,
+  frame=single,
+  rulecolor=\color{codeframe},
+  breaklines=true,
+  showstringspaces=false,
+  keepspaces=true,
+  columns=fullflexible,
+  tabsize=4,
+  captionpos=b,
+  xleftmargin=2em,
+  framexleftmargin=1.5em
+}
+\lstdefinestyle{datastyle}{
+  language={},
+  basicstyle=\ttfamily\footnotesize,
+  backgroundcolor=\color{codebg},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=8pt,
+  frame=single,
+  rulecolor=\color{codeframe},
+  breaklines=true,
+  showstringspaces=false,
+  keepspaces=true,
+  columns=fullflexible,
+  tabsize=4
+}
+\lstset{style=fortranstyle}
+
+\begin{document}
+
+\hypersetup{pageanchor=false}
+\begin{titlepage}
+\centering
+\vspace*{1.5cm}
+\IfFileExists{../../upc-logo.png}{%
+  \includegraphics[width=5cm]{../../upc-logo.png}\\[1.2cm]
+}{\vspace{3.4cm}}
+
+{\large\bfseries UNIVERSITAT POLITÈCNICA DE CATALUNYA}\\[0.45cm]
+{\small Escola Tècnica Superior d'Enginyeria de Telecomunicacions de Barcelona (ETSETB)}
+
+\vspace{3.2cm}
+
+{\LARGE\bfseries \practicetitle}\\[1.1cm]
+{\large Grau en Enginyeria Física}
+
+\vfill
+\begin{flushright}
+\textbf{Authors:} \reportauthors\\[0.35cm]
+\textbf{Subject:} SIMCON\\[0.35cm]
+\textbf{Date:} \reportdate
+\end{flushright}
+\end{titlepage}
+\hypersetup{pageanchor=true}
+
+\input{body_antislop.tex}

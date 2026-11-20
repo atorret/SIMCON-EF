@@ -32,3 +32,12 @@ P3/figures/
 P3/*.exe
 P3/*-mc.dat
 P3/newconf.data
+
+# Descargas y apuntes locales (no son del proyecto)
+descargas_sueltas/
+
+# Instrucciones para agentes de IA (locales)
+AGENTS.md
+CLAUDE.md
+
+__pycache__/
