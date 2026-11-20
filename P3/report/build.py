@@ -12,10 +12,10 @@ pre = s[: s.index(r"\begin{document}")]
 pre = pre.replace(r"\newcommand{\practiceid}{2}", r"\newcommand{\practiceid}{3}")
 pre = pre.replace(r"\newcommand{\practicetitle}{Practice 2}", r"\newcommand{\practicetitle}{Practice 3}")
 cover = s[s.index(r"\begin{document}") : s.index(r"\section{Exercise 1}")]
-for name, body in (("P3_report", "body.tex"), ("P3_report_antislop", "body_antislop.tex")):
-    (H / f"{name}.tex").write_text(pre + cover + f"\\input{{{body}}}\n", encoding="utf-8")
-    subprocess.run(
-        ["latexmk", "-pdf", "-synctex=1", "-interaction=nonstopmode", "-halt-on-error", f"{name}.tex"],
-        cwd=H, check=True, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
-    )
-    print("PDF:", H / f"{name}.pdf")
+(H / "P3_report.tex").write_text(pre + cover + "\\input{body.tex}\n", encoding="utf-8")
+
+subprocess.run(
+    ["latexmk", "-pdf", "-synctex=1", "-interaction=nonstopmode", "-halt-on-error", "P3_report.tex"],
+    cwd=H, check=True, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+)
+print("PDF:", H / "P3_report.pdf")
