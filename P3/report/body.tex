@@ -13,7 +13,7 @@ Determine the equation of state of a Lennard-Jones fluid for the isotherm $T^*=2
 \end{enumerate}
 
 \subsection{Code}
-\texttt{mcnvt.f90} was built from \texttt{leapfroglj.f90} (Practice~2). It works in reduced units ($\sigma=\epsilon=k_B=1$), with $N=500$ atoms in a cubic box with periodic boundary conditions (minimum image) and a Lennard-Jones potential truncated at $r_c=2.5\sigma$. The full program is in the Annex; the key pieces are below.
+First of all, we adapted the \texttt{mcnvt.f90} was built from \texttt{leapfroglj.f90} (Practice~2). It works in reduced units ($\sigma=\epsilon=k_B=1$), with $N=500$ atoms in a cubic box with periodic boundary conditions (minimum image) and a Lennard-Jones potential truncated at $r_c=2.5\sigma$. The full program is in the Annex; the key pieces are below.
 
 One Metropolis trial move (Step~1): a random atom is displaced by up to $\pm\Delta/2$ along each axis and accepted with probability $\min\{1,e^{-\beta\,\delta U}\}$. Only the energy of the moved atom with the others is computed ($O(N)$ per move).
 \lstinputlisting[style=fortranstyle,firstline=306,lastline=344,firstnumber=306,caption={Metropolis move \texttt{mcmove}.},label={lst:mcmove}]{../mcnvt.f90}
