@@ -1,3 +1,11 @@
 *.o
 .vscode/launch.json
 .vscode/settings.json
+# LaTeX build files
+*.aux
+*_report.log
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
