@@ -129,6 +129,7 @@
 
 \section{Equation of state of a Lennard-Jones fluid}
 
+% RESPONSABLE: Torret
 \subsection{Question}
 Determine the equation of state of a Lennard-Jones fluid for the isotherm $T^*=2.0$ with a personal Monte Carlo code ($N\sim 500$ atoms):
 \begin{enumerate}
@@ -145,6 +146,7 @@ Determine the equation of state of a Lennard-Jones fluid for the isotherm $T^*=2
   and compare with the direct results of Step~4.
 \end{enumerate}
 
+% RESPONSABLE: Torret (mcnvt.f90, Steps 1-3), salvo la parte final del ultimo parrafo (Montull)
 \subsection{Code}
 \texttt{mcnvt.f90} was built from \texttt{leapfroglj.f90} (Practice~2). It works in reduced units ($\sigma=\epsilon=k_B=1$), with $N=500$ atoms in a cubic box with periodic boundary conditions (minimum image) and a Lennard-Jones potential truncated at $r_c=2.5\sigma$. The full program is in the Annex; the key pieces are below.
 
@@ -159,8 +161,10 @@ Energy, virial and $g(r)$ histogram are evaluated on the whole configuration eve
 \lstinputlisting[style=fortranstyle,firstline=61,lastline=65,firstnumber=61,caption={Tail corrections.},label={lst:tail}]{../mcnvt.f90}
 \lstinputlisting[style=fortranstyle,firstline=169,lastline=191,firstnumber=169,caption={Subroutine \texttt{sample}: $U$ and $P$ (virial route) of the current configuration.},label={lst:sample}]{../mcnvt.f90}
 
+% RESPONSABLE: Torret (primera frase: sigma_U, sigma_P); Montull (desde "Step~7 was done": integrar_gdr.py, run_series.py, plot_eos.py)
 $\sigma_U$ and $\sigma_P$ are the standard deviations of the values sampled along the run (2000 samples per run). Step~7 was done with \texttt{integrar\_gdr.py}, which integrates the saved $g(r)$ (500 bins up to $L/2$) up to $r_c$ with the rectangle rule and adds the same tail corrections. The series (Step~4) is launched by \texttt{run\_series.py}: it builds an fcc lattice of $500$ atoms at each $\rho^*$, tunes $\Delta$ with short runs for an acceptance rate near $50\%$ (for $\rho^*\le0.3$ the acceptance stays higher, $\Delta^*=0.881$), and then runs the production. Figures are made by \texttt{plot\_eos.py}.
 
+% RESPONSABLE: Montull (Step 4: tablas y figuras)
 \subsection{Results}
 Tables~\ref{tab:n1000000} and~\ref{tab:n10000000} list the technical parameters and the results of the two series ($n_{\mathrm{cycl}}=10^6$ and $10^7$ moves, i.e.\ $2000$ and $20000$ moves per atom; cutoff $r_c^*=2.5$).
 
@@ -181,21 +185,29 @@ Tables~\ref{tab:n1000000} and~\ref{tab:n10000000} list the technical parameters 
   \label{fig:gdr}
 \end{figure}
 
+% Discussion: Torret -> Technical parameters y g(r); Montull -> EOS, literatura, integracion de g(r) y conclusion
 \subsection{Discussion \& Notes}
 \begin{itemize}
+  % RESPONSABLE: Torret
   \item \textbf{Technical parameters.} $\Delta^*$ was tuned so that the acceptance rate is $43$--$48\%$ for $\rho^*\ge0.4$. At low density almost every move is accepted ($77\%$ at $\rho^*=0.1$) because atoms rarely meet; there $\Delta$ is not critical. The cutoff $r_c=2.5\sigma$ is shorter than the $4$--$5\sigma$ of the reference work, which is compensated with the tail corrections (they are $-0.27$ in $P^*$ at $\rho^*=0.5$, so they cannot be dropped). $\sigma_U$, $\sigma_P$ are fluctuations of the instantaneous values, not errors of the mean: they grow with $\rho^*$ because the dense fluid has large virial fluctuations, and they hardly depend on $n_{\mathrm{cycl}}$ ($0.049\to0.051$ for $U$ at $\rho^*=0.5$). The difference between the $10^6$ and $10^7$ averages is small ($\le0.7\%$ in $P$ up to $\rho^*=0.7$, $1.9\%$ at $\rho^*=0.8$), so $10^6$ moves are already almost converged, but $10^7$ is smoother at high density. No initial cycles were discarded: starting from the fcc lattice, the system melts within the first few thousand moves, a negligible part of the run.
 
+  % RESPONSABLE: Montull
   \item \textbf{Equation of state (Step~5).} $U^*/N$ decreases monotonically from $-0.66$ to $-4.76$ as the attraction between neighbours accumulates. $P^*$ grows slowly up to $\rho^*\approx0.5$ and then very steeply (from $1.07$ to $5.25$), as the repulsive core starts to dominate. Both curves reproduce the shape of Frenkel and Smit's figure. Table~\ref{tab:ideal} shows that the ideal-gas law is poor in the whole studied range: already at $\rho^*=0.1$ the pressure is $11\%$ below $\rho^*T^*$ (the attraction lowers it), and the deviation grows to $-18\%$ at $\rho^*=0.2$--$0.3$. At $\rho^*\approx0.45$ repulsion and attraction cancel and the curve crosses the ideal line, so $Z\approx1$ at $\rho^*=0.5$ ($+7\%$) only by accident; beyond, $Z$ rises to $3.3$ at $\rho^*=0.8$. Therefore the ideal gas is a good approximation (error $\lesssim10\%$) only up to $\rho^*\approx0.1$, and the second virial coefficient is needed already from there.
 
+  % RESPONSABLE: Montull
   \item \textbf{Comparison with the literature.} Table~\ref{tab:johnson} shows that our $P^*$ agrees with Johnson \emph{et al.}\ within about $1\%$ over the whole range, and $U^*/N$ within $\approx0.3\%$ (e.g.\ $-3.152$ vs $-3.149$ at $\rho^*=0.5$). The small residual differences come from the finite cutoff (the tail assumes $g=1$ beyond $2.5\sigma$, and at high density $g$ is not exactly $1$ there), the finite size ($N=500$) and our statistics. Johnson \emph{et al.}\ give no value at $\rho^*=0.3$.
 
+  % RESPONSABLE: Torret
   \item \textbf{$g(r)$ (Step~6).} Figure~\ref{fig:gdr} shows the evolution from gas to liquid: at $\rho^*=0.1$ $g(r)$ is a single weak peak of height $1.63$ at $r=1.12\approx2^{1/6}$. As $\rho$ increases the first peak grows ($1.68$, $1.81$, $2.29$ for $\rho^*=0.3,0.5,0.8$) and moves to smaller $r$ ($1.12\to1.05$) because of the compression, and further shells appear at the highest densities. At all densities $g\to1$ at large $r$ (mean $0.997$--$1.000$ in the last bins), which supports the uniform-fluid assumption of the tail corrections. As $T^*=2$ is high, the structure is that of a dense fluid, softer than the liquid at $T^*=0.71$ of Practice~2 ($g_{\max}=3.0$).
 
+  % RESPONSABLE: Montull
   \item \textbf{Integration of $g(r)$ (Step~7).} Table~\ref{tab:integral} shows that the route through $g(r)$ reproduces the direct averages: $|\Delta U|\le0.002$ ($<0.1\%$ of $U$) and $|\Delta P|\le0.008$ ($\le0.3\%$, always above the direct value). Both routes use the same configurations, so the discrepancy is numerical, not statistical: the finite bin width ($L/1000$) in the rectangle rule. The pressure is more sensitive because $dU/dr\,r^3$ weighs the steep repulsive region more.
 \end{itemize}
 
+% RESPONSABLE: Montull
 \textbf{Conclusion.} The MC code reproduces the Lennard-Jones equation of state at $T^*=2.0$ within about $1\%$ of the reference values, the ideal-gas law only holds up to $\rho^*\approx0.1$, and $g(r)$ gives the same $U$ and $P$ as the direct calculation to $0.3\%$.
 
+% RESPONSABLE: Torret (Annex: codigo completo)
 \clearpage
 \thispagestyle{empty}
 \null
