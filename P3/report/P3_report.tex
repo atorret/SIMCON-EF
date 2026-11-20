@@ -131,7 +131,7 @@
 % EXERCISE 1 (Steps 1-3): el codigo MC, sin serie en densidad
 % RESPONSABLE: Torret (toda la seccion)
 % ============================================================================
-\section{Exercise 1}
+\section{Part 1 (Steps 1--3)}
 
 \subsection{Question}
 Determine the equation of state of a Lennard-Jones fluid for the isotherm $T^*=2.0$ with a personal Monte Carlo code ($N\sim 500$ atoms):
@@ -158,7 +158,7 @@ Energy, virial and $g(r)$ histogram are evaluated on the whole configuration eve
 $\sigma_U$ and $\sigma_P$ are the standard deviations of the values sampled along the run (2000 samples per run).
 
 \subsection{Results}
-Figure~\ref{fig:traces} shows the output of one run of the program (the $\rho^*=0.5$ point of the series of Exercise~2, $10^7$ moves, starting from an fcc lattice): the sampled $U^*/N$ and $P^*$ and their running means. The run gives $U^*/N=-3.152$, $\sigma_U=0.051$, $P^*=1.067$, $\sigma_P=0.154$, with an acceptance rate of $46\%$ ($\Delta^*=0.527$). The $g(r)$ of the same run is in Figure~\ref{fig:gdr}.
+Figure~\ref{fig:traces} shows the output of one run of the program (the $\rho^*=0.5$ point of the series of Part~2, $10^7$ moves, starting from an fcc lattice): the sampled $U^*/N$ and $P^*$ and their running means. The run gives $U^*/N=-3.152$, $\sigma_U=0.051$, $P^*=1.067$, $\sigma_P=0.154$, with an acceptance rate of $46\%$ ($\Delta^*=0.527$). The $g(r)$ of the same run is in Figure~\ref{fig:gdr}.
 
 \begin{figure}[H]
   \centering
@@ -173,7 +173,7 @@ Figure~\ref{fig:traces} shows the output of one run of the program (the $\rho^*=
 
   \item \textbf{Equilibration.} The run starts from an fcc lattice, but the first sample (after $10$ moves per atom) is already at $U^*/N=-3.24$, close to the mean $-3.15$: the lattice melts almost at once at $T^*=2$. The running mean of $U$ is flat after $\sim\!10^2$ moves per atom and that of $P$ after $\sim\!10^3$, out of $2\times10^4$, so no initial cycles were discarded.
 
-  \item \textbf{Tail corrections.} With $r_c=2.5\sigma$ they are not negligible: $-0.27$ in $P^*$ at $\rho^*=0.5$, a quarter of the total pressure. They assume $g(r)=1$ beyond $r_c$, which is checked in Exercise~2.
+  \item \textbf{Tail corrections.} With $r_c=2.5\sigma$ they are not negligible: $-0.27$ in $P^*$ at $\rho^*=0.5$, a quarter of the total pressure. They assume $g(r)=1$ beyond $r_c$, which is checked in Part~2.
 
   \item \textbf{Meaning of $\sigma_U$, $\sigma_P$.} They are the fluctuations of the instantaneous values (the width of the grey band in Figure~\ref{fig:traces}), not the error of the mean, which is much smaller because the $2000$ samples are averaged. $\sigma_P$ is about nine times larger than $\sigma_U$ in relative terms ($14\%$ vs $1.6\%$): the virial is dominated by the steep repulsive part of the potential, very sensitive to close pairs.
 \end{itemize}
@@ -183,7 +183,7 @@ Figure~\ref{fig:traces} shows the output of one run of the program (the $\rho^*=
 % RESPONSABLE: Montull, salvo los puntos de Discussion marcados Torret
 % ============================================================================
 \newpage
-\section{Exercise 2}
+\section{Part 2 (Steps 4--7)}
 
 \subsection{Question}
 \begin{enumerate}
@@ -199,7 +199,7 @@ Figure~\ref{fig:traces} shows the output of one run of the program (the $\rho^*=
 \end{enumerate}
 
 \subsection{Code}
-The program of Exercise~1 is used unchanged. The series (Step~4) is launched by \texttt{run\_series.py}: it builds an fcc lattice of $500$ atoms at each $\rho^*$, tunes $\Delta$ with short runs for an acceptance rate near $50\%$ (for $\rho^*\le0.3$ the acceptance stays higher, $\Delta^*=0.881$), and then runs the production. Step~7 was done with \texttt{integrar\_gdr.py}, which integrates the saved $g(r)$ (500 bins up to $L/2$) up to $r_c$ with the rectangle rule and adds the same tail corrections. Figures are made by \texttt{plot\_eos.py}.
+The program of Part~1 is used unchanged. The series (Step~4) is launched by \texttt{run\_series.py}: it builds an fcc lattice of $500$ atoms at each $\rho^*$, tunes $\Delta$ with short runs for an acceptance rate near $50\%$ (for $\rho^*\le0.3$ the acceptance stays higher, $\Delta^*=0.881$), and then runs the production. Step~7 was done with \texttt{integrar\_gdr.py}, which integrates the saved $g(r)$ (500 bins up to $L/2$) up to $r_c$ with the rectangle rule and adds the same tail corrections. Figures are made by \texttt{plot\_eos.py}.
 
 \subsection{Results}
 Tables~\ref{tab:n1000000} and~\ref{tab:n10000000} list the technical parameters and the results of the two series ($n_{\mathrm{cycl}}=10^6$ and $10^7$ moves, i.e.\ $2000$ and $20000$ moves per atom; cutoff $r_c^*=2.5$).
