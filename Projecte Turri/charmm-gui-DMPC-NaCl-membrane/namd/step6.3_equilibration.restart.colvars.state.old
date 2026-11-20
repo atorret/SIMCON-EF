@@ -1,0 +1,30 @@
+configuration {
+  step       384900
+  dt 1.000000e+00
+  version 2024-06-04
+}
+
+colvar {
+  name dmpc_head_upper
+  x       17.982806292238
+}
+
+colvar {
+  name dmpc_head_lower
+  x      -18.237238278771
+}
+
+restraint {
+  configuration {
+    step 384900
+    name harmonic1
+  }
+}
+
+restraint {
+  configuration {
+    step 384900
+    name harmonic2
+  }
+}
+

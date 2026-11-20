@@ -30,7 +30,7 @@ Every \texttt{nsamp} moves, \texttt{sample} goes over all pairs once and returns
 $\sigma_U$ and $\sigma_P$ are the standard deviations of the 2000 values sampled in each run.
 
 \subsection{Results}
-Figure~\ref{fig:traces} shows one run of the program: the $\rho^*=0.5$ point of the Part~2 series, $10^7$ moves from an fcc lattice. The run gives $U^*/N=-3.152$ with $\sigma_U=0.051$ and $P^*=1.067$ with $\sigma_P=0.154$, with $46\%$ of the moves accepted at $\Delta^*=0.527$. Its $g(r)$ is the $\rho^*=0.5$ curve of Figure~\ref{fig:gdr}.
+Figure~\ref{fig:traces} shows one run of the program at the $\rho^*=0.5$ and $T^*=2$, for $10^7$ moves. We obtain $U^*/N=-3.152$ with $\sigma_U=0.051$ and $P^*=1.067$ with $\sigma_P=0.154$, with $46\%$ of the moves accepted at $\Delta^*=0.527$. Also, its $g(r)$ is the $\rho^*=0.5$ curve of Figure~\ref{fig:gdr}.
 
 \begin{figure}[H]
   \centering
@@ -41,13 +41,13 @@ Figure~\ref{fig:traces} shows one run of the program: the $\rho^*=0.5$ point of 
 
 \subsection{Discussion \& Notes}
 \begin{itemize}
-  \item \textbf{Metropolis move.} A trial move costs $O(N)$, since only the $N-1$ pairs of the moved atom change, while a full pass over all pairs costs $O(N^2)$. That is why the program computes $U$, the virial and $g(r)$ only every \texttt{nsamp} moves.
+  \item \textbf{Metropolis move.} A trial move costs $O(N)$, since only the $N-1$ pairs of the moved atom change, while a full pass over all pairs costs $O(N^2)$. For that reason, we only compute the virial, $U$ and $g(r)$ every \texttt{nsamp} moves.
 
-  \item \textbf{Equilibration.} The fcc lattice melts almost at once at $T^*=2$: the first sample, after $10$ moves per atom, is already at $U^*/N=-3.24$, against a mean of $-3.15$. The running mean of $U$ stops changing after about $10^2$ moves per atom and that of $P$ after about $10^3$, out of $2\times10^4$, so we kept all the samples in the averages.
+  \item \textbf{Equilibration.} The lattice melts rapidly at $T^* = 2$, with the system reaching $U^*/N = -3.24$ within the first $10$ moves per atom, immediately approaching its steady-state mean of $-3.15$. Since the cumulative averages of $U$ and $P$ converge within $\sim 10^2$ and $\sim 10^3$ moves per atom out of $10^7$, so no initial samples were discarded.
 
   \item \textbf{Tail corrections.} With $r_c=2.5\sigma$ the tail correction to the pressure is $-0.27$ at $\rho^*=0.5$, a quarter of $P^*$, so it cannot be left out. It assumes $g(r)=1$ beyond $r_c$; Part~2 checks this.
 
-  \item \textbf{Meaning of $\sigma_U$, $\sigma_P$.} $\sigma_U$ and $\sigma_P$ measure how much the instantaneous values fluctuate (the width of the grey band in Figure~\ref{fig:traces}). They are not the error of the mean, which is much smaller after averaging $2000$ samples. The relative fluctuation of $P$ is $14\%$ against $1.6\%$ for $U$, because the virial depends mostly on the steep repulsive part of the potential, where a small change in the distance of a close pair changes the force a lot.
+  \item \textbf{Meaning of $\sigma_U$, $\sigma_P$.} $\sigma_U$ and $\sigma_P$ measure how much the instantaneous values fluctuate (the width of the grey band in Figure~\ref{fig:traces}). The relative fluctuation of $P$ is $14\%$ against $1.6\%$ for $U$, because the virial depends mostly on the steep repulsive part of the potential, where a small change in the distance of a close pair changes the force a lot.
 \end{itemize}
 
 % ============================================================================
