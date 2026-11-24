@@ -1,7 +1,7 @@
 structure               step5_input.psf
 coordinates             step5_input.pdb
 
-set temp                303.15;
+set temp                283;
 set outputname          step6.6_equilibration;
 
 source                  step5_input.str

@@ -1,7 +1,7 @@
 structure               step5_input.psf
 coordinates             step5_input.pdb
 
-set temp                303.15;
+set temp                283;
 outputName              step7_production; # base name for output from this run
                                             # NAMD writes two files at the end, final coord and vel
                                             # in the format of first-dyn.coor and first-dyn.vel
@@ -11,7 +11,7 @@ binCoordinates          $inputname.coor;    # coordinates from last run (binary)
 binVelocities           $inputname.vel;     # velocities from last run (binary)
 extendedSystem          $inputname.xsc;     # cell dimensions from last run (binary)
 
-dcdfreq                 50000;
+dcdfreq                 2500;
 dcdUnitCell             yes;                # the file will contain unit cell info in the style of
                                             # charmm dcd files. if yes, the dcd files will contain
                                             # unit cell information in the style of charmm DCD files.
