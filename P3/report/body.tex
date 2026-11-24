@@ -43,7 +43,7 @@ Figure~\ref{fig:traces} shows one run of the program at the $\rho^*=0.5$ and $T^
 \begin{itemize}
   \item \textbf{Metropolis move.} A trial move costs $O(N)$, since only the $N-1$ pairs of the moved atom change, while a full pass over all pairs costs $O(N^2)$. For that reason, we only compute the virial, $U$ and $g(r)$ every \texttt{nsamp} moves.
 
-  \item \textbf{Equilibration.} The lattice melts rapidly at $T^* = 2$, with the system reaching $U^*/N = -3.24$ within the first $10$ moves per atom, immediately approaching its steady-state mean of $-3.15$. Since the cumulative averages of $U$ and $P$ converge within $\sim 10^2$ and $\sim 10^3$ moves per atom out of $10^7$, so no initial samples were discarded.
+  \item \textbf{Equilibration.} The lattice melts rapidly at $T^* = 2$, with the system reaching $U^*/N = -3.24$ within the first $10$ moves per atom, immediately approaching its steady-state mean of $-3.15$. Since the cumulative averages of $U$ and $P$ converge within $\sim 10^2$ and $\sim 10^3$ moves per atom out of $2 \cdot 10^4$, so no initial samples were discarded.
 
   \item \textbf{Tail corrections.} With $r_c=2.5\sigma$ the tail correction to the pressure is $-0.27$ at $\rho^*=0.5$, a quarter of $P^*$, so it cannot be left out. It assumes $g(r)=1$ beyond $r_c$; Part~2 checks this.
 
