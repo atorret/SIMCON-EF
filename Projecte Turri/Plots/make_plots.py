@@ -95,6 +95,10 @@ RULES: list[Rule] = [
     Rule(r"temp", "timeseries", "Timestep", "Temperature (K)", "Temperature"),
     Rule(r"pres", "timeseries", "Timestep", "Pressure (bar)", "Pressure",
          series=("instantaneous", "PRESSAVG")),
+    Rule(r"area_per_lipid", "timeseries", "Timestep", "Area per lipid (Å²)",
+         "Area per lipid"),
+    Rule(r"per_water", "timeseries", "Frame", "H-bonds per water molecule",
+         "H-bonds per water molecule"),
     Rule(r"hydrogen|h_?bond", "timeseries", "Frame", "Number of H-bonds",
          "Hydrogen bonds"),
 ]
@@ -110,6 +114,7 @@ GROUP_TITLES: list[tuple[str, str]] = [
 TOKEN_TEX = {
     "ow": r"O$_\mathrm{w}$", "hw": r"H$_\mathrm{w}$",
     "oh2": r"O$_\mathrm{w}$", "h1": r"H$_1$", "h2": r"H$_2$",
+    "na": r"Na$^+$", "cl": r"Cl$^-$", "k": r"K$^+$",
 }
 
 
@@ -319,8 +324,10 @@ def discover(root: Path, out_dir: Path) -> list[Section]:
                   if p.is_file() and p.suffix.lower() in DATA_EXT]
     if loose_root:
         candidates.append((root.name, root, False))
+    # "Step*" sections (the main runs) first, then the questions (Q1_..., Q2_...)
     for d in sorted((p for p in root.iterdir() if p.is_dir()),
-                    key=lambda p: natural_key(p.name)):
+                    key=lambda p: (not p.name.lower().startswith("step"),
+                                   natural_key(p.name))):
         if skipped(d.name) or d.resolve() == out_dir.resolve():
             continue
         candidates.append((d.name, d, True))
